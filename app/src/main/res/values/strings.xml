@@ -21,5 +21,13 @@
 
     <string name="habit_list">Список привычек</string>
     <string name="habit_detail">Детали привычки</string>
+    <string name="good_habits">Хорошие привычки</string>
+    <string name="bad_habits">Плохие привычки</string>
 
+    <string name="open_drawer">Drawer открыт</string>
+    <string name="close_drawer">Drawer закрыт</string>
+    <string name="drawer_header">Меню</string>
+
+    <string name="info_about_app_title">Информация о приложении</string>
+    <string name="info_about_app_description">Приложение для отслеживания хороших и плохих привычек</string>
 </resources>
