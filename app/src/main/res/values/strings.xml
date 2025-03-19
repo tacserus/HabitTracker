@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">HabitTracker</string>
+    <string name="habit_name">Название</string>
+    <string name="habit_description">Описание</string>
+    <string name="habit_priority">Приоритет</string>
+    <string name="habit_type">Тип привычки</string>
+    <string name="habit_good_type">Хорошая привычка</string>
+    <string name="habit_bad_type">Плохая привычка</string>
+    <string name="habit_quantity">Количество</string>
+    <string name="habit_frequency">Периодичность</string>
+
+    <string name="habit_edit_name">Введите название</string>
+    <string name="habit_edit_description">Введите описание</string>
+    <string name="habit_edit_type">Введите название</string>
+    <string name="habit_edit_quantity">Введите количество</string>
+    <string name="habit_edit_frequency">Введите периодичность</string>
+
+    <string name="habit_save">Сохранить</string>
+    <string name="habit_add">Добавить</string>
+    <string name="habit_cancel">Отменить</string>
+
+    <string name="habit_list">Список привычек</string>
+    <string name="habit_detail">Детали привычки</string>
+
+</resources>
