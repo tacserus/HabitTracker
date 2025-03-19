@@ -2,18 +2,16 @@ package com.example.habittracker.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import java.util.LinkedList
-import java.util.Queue
 import java.util.UUID
 
 data class Item(
     val id: UUID,
-    var title: String,
-    var description: String,
-    var priority: String,
-    var type: String,
-    var quantity: Int,
-    var frequency: Int
+    val title: String,
+    val description: String,
+    val priority: String,
+    val type: String,
+    val quantity: Int,
+    val frequency: Int
 ) : Parcelable {
     companion object {
         fun generateId(): UUID {
