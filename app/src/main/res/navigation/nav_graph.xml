@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/habitViewPagerFragment">
+
+    <fragment
+        android:id="@+id/habitViewPagerFragment"
+        android:name="com.example.habittracker.fragments.HabitViewPagerFragment">
+
+        <action
+            android:id="@+id/action_viewPagerFragment_to_thirdFragment"
+            app:destination="@id/addHabitFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/firstFragment"
+        android:name="com.example.habittracker.fragments.GoodHabitsFragment">
+
+        <action
+            android:id="@+id/action_firstFragment_to_thirdFragment"
+            app:destination="@id/addHabitFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/secondFragment"
+        android:name="com.example.habittracker.fragments.BadHabitsFragment">
+
+        <action
+            android:id="@+id/action_secondFragment_to_thirdFragment"
+            app:destination="@id/addHabitFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addHabitFragment"
+        android:name="com.example.habittracker.fragments.AddHabitFragment"/>
+
+    <fragment
+        android:id="@+id/infoFragment"
+        android:name="com.example.habittracker.fragments.InfoFragment"/>
+</navigation>

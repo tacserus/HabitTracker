@@ -1,15 +1,16 @@
-package com.example.habittracker.recyclerView
+package com.example.habittracker.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.habittracker.R
 import com.example.habittracker.models.Item
+import com.example.habittracker.holders.ViewHolder
 
 
-class Adapter(
-    private val items: MutableList<Item>,
+class RecyclerViewAdapter(
+    private var items: List<Item>,
     private val onItemClicked: (Item) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,5 +29,13 @@ class Adapter(
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    fun submit(newItems: List<Item>) {
+        val diffCallback = HabitDiffCallback(items, newItems)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        items = newItems
+        diffResult.dispatchUpdatesTo(this)
     }
 }

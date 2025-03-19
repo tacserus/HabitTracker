@@ -1,4 +1,4 @@
-package com.example.habittracker.recyclerView
+package com.example.habittracker.holders
 
 import android.view.View
 import android.widget.TextView
