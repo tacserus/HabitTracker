@@ -7,6 +7,7 @@ android {
     namespace = "com.example.habittracker"
     compileSdk = 35
 
+
     defaultConfig {
         applicationId = "com.example.habittracker"
         minSdk = 24
@@ -30,9 +31,18 @@ android {
         }
     }
 
+    dataBinding {
+        enable = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
     }
     kotlinOptions {
         jvmTarget = "1.8"

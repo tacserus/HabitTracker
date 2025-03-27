@@ -1,145 +1,111 @@
 package com.example.habittracker.fragments
 
-import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.lifecycle.ViewModelProvider
-import com.example.habittracker.viewmodels.HabitListViewModel
-
-import android.widget.AdapterView
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
 import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Spinner
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.habittracker.R
+import com.example.habittracker.databinding.FragmentAddHabitBinding
 import com.example.habittracker.enums.Priority
-import com.example.habittracker.models.Item
-import java.util.UUID
+import com.example.habittracker.viewmodels.AddHabitViewModel
+import com.example.habittracker.viewmodels.HabitListViewModel
 
 class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
-    private var editTextTitle: EditText? = null
-    private var editTextDescription: EditText? = null
-    private var spinnerPriority: Spinner? = null
-    private var radioGroupHabitType: RadioGroup? = null
-    private var editTextQuality: EditText? = null
-    private var editTextFrequency: EditText? = null
-    private var buttonSave: Button? = null
-    private var buttonCancel: Button? = null
+    private lateinit var binding: FragmentAddHabitBinding
 
-    private var selectedPriority: String? = null
-    private var selectedType: String? = null
-    private var editedItem: Item? = null
-    private var id: UUID? = null
+    private lateinit var habitListViewModel: HabitListViewModel
+    private lateinit var addHabitViewModel: AddHabitViewModel
 
-    private var view: View? = null
-    private var habitListViewModel: HabitListViewModel? = null
-
-    private val TAG = "add_item_fragment"
+    private lateinit var id: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        habitListViewModel = ViewModelProvider(requireActivity())[HabitListViewModel::class.java]
+        addHabitViewModel = ViewModelProvider(requireActivity())[AddHabitViewModel::class.java]
+
         arguments?.let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                editedItem = it.getParcelable("item", Item::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                editedItem = it.getParcelable("item")
-            }
+            id = it.getString("id") ?: ""
         }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentAddHabitBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = addHabitViewModel
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        this.view = view
-        habitListViewModel = ViewModelProvider(requireActivity())[HabitListViewModel::class.java]
+        addHabitViewModel.item.observe(viewLifecycleOwner) { item ->
+            item?.let { safeItem ->
+                binding.editTextTitle.setText(safeItem.title)
+                binding.editTextDescription.setText(safeItem.description)
+
+                binding.spinnerPriority.setSelection(
+                    Priority.entries.indexOfFirst { priority -> priority.description == safeItem.priority }
+                )
+
+                for (i in 0 until binding.radioGroupHabitType.childCount) {
+                    val radioButton = binding.radioGroupHabitType.getChildAt(i) as RadioButton
+                    if (radioButton.text == safeItem.type) {
+                        binding.radioGroupHabitType.check(radioButton.id)
+                        break
+                    }
+                }
+                binding.editTextQuantity.setText(safeItem.quantity)
+                binding.editTextFrequency.setText(safeItem.frequency)
+            } ?: run {
+                binding.editTextTitle.setText("")
+                binding.editTextDescription.setText("")
+
+                binding.spinnerPriority.setSelection(
+                    Priority.entries.indexOfFirst { priority -> priority == Priority.Lite }
+                )
+
+                val radioButton = binding.radioGroupHabitType.getChildAt(0) as RadioButton
+                binding.radioGroupHabitType.check(radioButton.id)
+
+                binding.editTextQuantity.setText("")
+                binding.editTextFrequency.setText("")
+            }
+        }
 
         initGUI()
+
+        fillDataForEditMode()
     }
 
     private fun initGUI() {
-        editTextTitle = view?.findViewById(R.id.editTextTitle)
-        editTextDescription = view?.findViewById(R.id.editTextDescription)
-
         initSpinner()
-        initHabitTypeGroup()
 
-        buttonSave = view?.findViewById(R.id.buttonSave)
-        buttonSave?.setOnClickListener { onSaveClicked() }
-
-        buttonCancel = view?.findViewById(R.id.buttonCancel)
-        buttonCancel?.setOnClickListener { onCancelClicked() }
-
-        editTextQuality = view?.findViewById(R.id.editTextQuantity)
-        editTextFrequency = view?.findViewById(R.id.editTextFrequency)
-
-        if (editedItem !== null) {
-            fillDataForEditMode()
-        }
+        binding.buttonSave.setOnClickListener { onSaveClicked() }
+        binding.buttonCancel.setOnClickListener { onCancelClicked() }
     }
 
     private fun initSpinner() {
-        spinnerPriority = view?.findViewById(R.id.spinnerPriority)
-
         val items = Priority.entries.map { priority -> priority.description }
         val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_item, items)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerPriority?.adapter = adapter
-
-        spinnerPriority?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                selectedPriority = parent.getItemAtPosition(position).toString()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-
-        spinnerPriority?.setSelection(0)
-    }
-
-    private fun initHabitTypeGroup() {
-        radioGroupHabitType = view?.findViewById(R.id.radioGroupHabitType)
-
-        radioGroupHabitType?.setOnCheckedChangeListener { _, checkedId ->
-            val selectedRadioButton = view?.findViewById<RadioButton>(checkedId)
-            selectedType = selectedRadioButton?.text.toString()
-        }
-
-        radioGroupHabitType?.check(R.id.radioButtonGoodHabit)
-        val radioButton = view?.findViewById<RadioButton>(R.id.radioButtonGoodHabit)
-        selectedType = radioButton?.text.toString()
+        binding.spinnerPriority.adapter = adapter
     }
 
     private fun fillDataForEditMode() {
-        id = editedItem?.id
-        editTextTitle?.setText(editedItem?.title)
-        editTextDescription?.setText(editedItem?.description)
-
-        spinnerPriority?.setSelection(
-            Priority.entries.indexOfFirst { priority ->
-                priority.description == editedItem?.priority
-            }
-        )
-
-        for (i in 0 until radioGroupHabitType?.childCount!!) {
-            val radioButton = radioGroupHabitType?.getChildAt(i) as RadioButton
-            if (radioButton.text == editedItem?.type) {
-                radioGroupHabitType?.check(radioButton.id)
-                selectedType = editedItem?.type
-                break
-            }
+        val editedItem = habitListViewModel.getItemById(id)
+        if (editedItem != null) {
+            addHabitViewModel.fillItem(editedItem)
         }
-
-        val quantity = editedItem?.quantity.toString()
-        val frequency = editedItem?.frequency.toString()
-
-        editTextQuality?.setText(quantity)
-        editTextFrequency?.setText(frequency)
     }
 
     private fun onSaveClicked() {
@@ -147,47 +113,27 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
             return
         }
 
-        val quantity = editTextQuality?.text.toString().toIntOrNull() ?: 0
-        val frequency = editTextFrequency?.text.toString().toIntOrNull() ?: 0
+        addHabitViewModel.createItem(
+            id.ifBlank { null },
+            binding.editTextTitle.text.toString(),
+            binding.editTextDescription.text.toString(),
+            binding.spinnerPriority.selectedItem.toString(),
+            when (binding.radioGroupHabitType.checkedRadioButtonId) {
+                R.id.radioButtonGoodHabit -> binding.radioButtonGoodHabit.text.toString()
+                R.id.radioButtonBadHabit -> binding.radioButtonBadHabit.text.toString()
+                else -> ""
+            },
+            binding.editTextQuantity.text.toString(),
+            binding.editTextFrequency.text.toString()
+        )
 
-        findNavController().popBackStack()
-
-        if (editedItem !== null) {
-            editItem(quantity, frequency)
-            return
+        if (id.isNotBlank()) {
+            addHabitViewModel.item.value?.let { habitListViewModel.updateItem(it) }
+        } else {
+            addHabitViewModel.item.value?.let { habitListViewModel.addItem(it) }
         }
 
-        addItem(quantity, frequency)
-    }
-
-    private fun addItem(quantity: Int, frequency: Int) {
-        id = Item.generateId()
-
-        val newItem = Item(
-            id = id!!,
-            title = editTextTitle?.text.toString(),
-            description = editTextDescription?.text.toString(),
-            priority = selectedPriority!!,
-            type = selectedType!!,
-            quantity = quantity,
-            frequency = frequency
-        )
-
-        habitListViewModel?.addItem(newItem)
-    }
-
-    private fun editItem(quantity: Int, frequency: Int) {
-        val newItem = Item(
-            id = id!!,
-            title = editTextTitle?.text.toString(),
-            description = editTextDescription?.text.toString(),
-            priority = selectedPriority!!,
-            type = selectedType!!,
-            quantity = quantity,
-            frequency = frequency
-        )
-
-        habitListViewModel?.updateItem(newItem)
+        findNavController().popBackStack()
     }
 
     private fun onCancelClicked() {
@@ -195,11 +141,9 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
     }
 
     private fun checkFieldsForSave(): Boolean {
-        return editTextTitle!!.text.isNotBlank() &&
-                editTextDescription!!.text.isNotBlank() &&
-                editTextQuality!!.text.isNotBlank() &&
-                editTextFrequency!!.text.isNotBlank() &&
-                selectedPriority != null &&
-                selectedType != null
+        return binding.editTextTitle.text.isNotBlank() &&
+               binding.editTextDescription.text.isNotBlank() &&
+               binding.editTextQuantity.text.isNotBlank() &&
+               binding.editTextFrequency.text.isNotBlank()
     }
 }
