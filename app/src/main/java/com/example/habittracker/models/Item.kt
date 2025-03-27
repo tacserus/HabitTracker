@@ -5,13 +5,13 @@ import android.os.Parcelable
 import java.util.UUID
 
 data class Item(
-    val id: UUID,
+    val id: String,
     val title: String,
     val description: String,
     val priority: String,
     val type: String,
-    val quantity: Int,
-    val frequency: Int
+    val quantity: String,
+    val frequency: String
 ) : Parcelable {
     companion object {
         fun generateId(): UUID {
@@ -22,13 +22,13 @@ data class Item(
         val CREATOR = object : Parcelable.Creator<Item> {
             override fun createFromParcel(parcel: Parcel): Item {
                 return Item(
-                    UUID.fromString(parcel.readString()),
                     parcel.readString() ?: "",
                     parcel.readString() ?: "",
                     parcel.readString() ?: "",
                     parcel.readString() ?: "",
-                    parcel.readInt(),
-                    parcel.readInt(),
+                    parcel.readString() ?: "",
+                    parcel.readString() ?: "",
+                    parcel.readString() ?: "",
                 )
             }
 
@@ -39,13 +39,13 @@ data class Item(
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(id.toString())
+        parcel.writeString(id)
         parcel.writeString(title)
         parcel.writeString(description)
         parcel.writeString(priority)
         parcel.writeString(type)
-        parcel.writeInt(quantity)
-        parcel.writeInt(frequency)
+        parcel.writeString(quantity)
+        parcel.writeString(frequency)
     }
 
     override fun describeContents(): Int {

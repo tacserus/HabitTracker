@@ -18,6 +18,8 @@
     <string name="habit_save">Сохранить</string>
     <string name="habit_add">Добавить</string>
     <string name="habit_cancel">Отменить</string>
+    <string name="habit_apply">Применить</string>
+    <string name="habit_reset">Сбросить</string>
 
     <string name="habit_list">Список привычек</string>
     <string name="habit_detail">Детали привычки</string>
@@ -30,4 +32,10 @@
 
     <string name="info_about_app_title">Информация о приложении</string>
     <string name="info_about_app_description">Приложение для отслеживания хороших и плохих привычек</string>
+
+    <string name="search">Поиск</string>
+    <string name="search_hint">Введите текст для поиска</string>
+    <string name="filters">Фильтры</string>
+    <string name="zero">0</string>
+    <string name="sorting">Сортировка</string>
 </resources>

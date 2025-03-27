@@ -3,14 +3,14 @@ package com.example.habittracker.adapters
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.habittracker.fragments.BadHabitsFragment
-import com.example.habittracker.fragments.GoodHabitsFragment
+import com.example.habittracker.enums.HabitType
+import com.example.habittracker.fragments.HabitsFragment
 
 class HabitPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 
     private val fragmentList = listOf(
-        GoodHabitsFragment(),
-        BadHabitsFragment()
+        HabitsFragment.newInstance(HabitType.GoodHabit.description),
+        HabitsFragment.newInstance(HabitType.BadHabit.description)
     )
 
     override fun getItemCount(): Int = fragmentList.size
