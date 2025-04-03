@@ -38,4 +38,12 @@
     <string name="filters">Фильтры</string>
     <string name="zero">0</string>
     <string name="sorting">Сортировка</string>
+
+    <string name="table_name">Habits</string>
+    <string name="by_quantity">По количеству</string>
+    <string name="by_frequency">По частоте</string>
+
+    <string name="sometimes">Иногда</string>
+    <string name="often">Часто</string>
+    <string name="daily">Ежедневно</string>
 </resources>

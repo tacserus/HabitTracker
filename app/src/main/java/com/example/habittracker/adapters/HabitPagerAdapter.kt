@@ -9,8 +9,8 @@ import com.example.habittracker.fragments.HabitsFragment
 class HabitPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 
     private val fragmentList = listOf(
-        HabitsFragment.newInstance(HabitType.GoodHabit.description),
-        HabitsFragment.newInstance(HabitType.BadHabit.description)
+        HabitsFragment.newInstance(HabitType.GOODHABIT),
+        HabitsFragment.newInstance(HabitType.BADHABIT)
     )
 
     override fun getItemCount(): Int = fragmentList.size

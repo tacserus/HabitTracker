@@ -1,11 +1,11 @@
 package com.example.habittracker.fragments
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.habittracker.R
@@ -13,22 +13,23 @@ import com.example.habittracker.adapters.RecyclerViewAdapter
 import com.example.habittracker.databinding.FragmentHabitsBinding
 import com.example.habittracker.enums.HabitType
 import com.example.habittracker.viewmodels.HabitListViewModel
+import com.example.habittracker.viewmodels.ViewModelProvider
 
 class HabitsFragment : Fragment(R.layout.fragment_habits) {
 
     private lateinit var habitListViewModel: HabitListViewModel
     private lateinit var binding: FragmentHabitsBinding
 
-    private lateinit var type: String
+    private lateinit var type: HabitType
 
     companion object {
         private const val TAG = "bad_habits_fragment"
         private const val HABITS_TYPE = "habits_type"
 
-        fun newInstance(type: String): HabitsFragment {
+        fun newInstance(type: HabitType): HabitsFragment {
             val fragment = HabitsFragment()
             val args = Bundle().apply {
-                putString(HABITS_TYPE, type)
+                putParcelable(HABITS_TYPE, type)
             }
             fragment.arguments = args
             return fragment
@@ -39,10 +40,15 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            type = it.getString(HABITS_TYPE) ?: ""
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                type = it.getParcelable(HABITS_TYPE, HabitType::class.java)!!
+            } else {
+                @Suppress("DEPRECATION")
+                type = it.getParcelable(HABITS_TYPE)!!
+            }
         }
 
-        habitListViewModel = ViewModelProvider(requireActivity())[HabitListViewModel::class.java]
+        habitListViewModel = ViewModelProvider.instance.getHabitListViewModel(requireActivity())
     }
 
     override fun onCreateView(
@@ -60,11 +66,11 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         super.onViewCreated(view, savedInstanceState)
 
         when (type) {
-            HabitType.GoodHabit.description -> {
-                binding.listTitle.text = HabitType.GoodHabits.description
+            HabitType.GOODHABIT-> {
+                binding.listTitle.text = resources.getString(R.string.good_habits)
             }
-            HabitType.BadHabit.description -> {
-                binding.listTitle.text = HabitType.BadHabits.description
+            HabitType.BADHABIT -> {
+                binding.listTitle.text = resources.getString(R.string.bad_habits)
             }
         }
 
@@ -73,7 +79,7 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         binding.recyclerView.adapter = adapter
 
         habitListViewModel.items.observe(viewLifecycleOwner) { items ->
-            adapter.submit(items.filter { item -> item.type == type })
+            adapter.submit(items.filter { it.type == type.description })
         }
 
         binding.searchFab.setOnClickListener {
@@ -86,9 +92,9 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         }
     }
 
-    private fun openAddItemFragment(id: String? = null) {
+    private fun openAddItemFragment(id: Long? = null) {
         val bundle = Bundle().apply {
-            putString("id", id)
+            putString("id", id.toString())
         }
 
         findNavController().navigate(R.id.addHabitFragment, bundle)

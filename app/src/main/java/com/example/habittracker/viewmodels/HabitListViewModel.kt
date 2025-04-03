@@ -3,37 +3,31 @@ package com.example.habittracker.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.habittracker.database.HabitsRepository
 import com.example.habittracker.enums.FilterType
 import com.example.habittracker.enums.SortingType
-import com.example.habittracker.models.Item
+import com.example.habittracker.models.Habit
 
-class HabitListViewModel : ViewModel() {
+class HabitListViewModel(private val habitsRepository: HabitsRepository) : ViewModel() {
     private val currentFilters: MutableMap<FilterType, String> = mutableMapOf()
     private var currentSortingType: SortingType = SortingType.DEFAULT
     private var currentSearchingWord: String = ""
 
-    private val _allItems: MutableList<Item> = mutableListOf()
-    private val _currentItems = MutableLiveData<List<Item>>(mutableListOf())
+    private var _allHabits: List<Habit> = mutableListOf()
+    private val _currentItems = MutableLiveData<List<Habit>>(mutableListOf())
 
-    val items: LiveData<List<Item>> get() = _currentItems
+    val items: LiveData<List<Habit>> get() = _currentItems
 
-    fun getItemById(id: String): Item? {
-        return _allItems.find { it.id == id }
-    }
-
-    fun addItem(item: Item) {
-        _allItems.add(item)
-
-        checkOptions()
-    }
-
-    fun updateItem(item: Item) {
-        val position = _allItems.indexOfFirst { it.id == item.id }
-        if (position != -1) {
-            _allItems[position] = item
+    init {
+        habitsRepository.getAllHabits().observeForever { habits ->
+            _allHabits = habits
+            checkOptions()
         }
 
-        checkOptions()
+    }
+
+    fun deleteHabit(habit: Habit) {
+        habitsRepository.deleteHabit(habit)
     }
 
     fun applyFilters(filters: MutableMap<FilterType, String>) {
@@ -50,10 +44,10 @@ class HabitListViewModel : ViewModel() {
         _currentItems.value = filteredItems
     }
 
-    private fun applyFilter(filteredItems: List<Item>, filterType: FilterType, value: String): List<Item> {
+    private fun applyFilter(filteredHabits: List<Habit>, filterType: FilterType, value: String): List<Habit> {
         val newFilteredItems = when (filterType) {
-            FilterType.QUANTITY -> filteredItems.filter { it.quantity == value }
-            FilterType.FREQUENCY -> filteredItems.filter { it.frequency == value }
+            FilterType.QUANTITY -> filteredHabits.filter { it.quantity == value }
+            FilterType.FREQUENCY -> filteredHabits.filter { it.frequency == value }
         }
 
         currentFilters[filterType] = value
@@ -63,9 +57,9 @@ class HabitListViewModel : ViewModel() {
 
     fun sortByField(sortingField: SortingType) {
         when (sortingField) {
-            SortingType.QUANTITY -> _currentItems.value = _allItems.sortedBy { it.quantity }
-            SortingType.FREQUENCY -> _currentItems.value = _allItems.sortedBy { it.frequency }
-            else -> _currentItems.value = _allItems.sortedBy { it.title }
+            SortingType.QUANTITY -> _currentItems.value = _allHabits.sortedBy { it.quantity }
+            SortingType.FREQUENCY -> _currentItems.value = _allHabits.sortedBy { it.frequency }
+            else -> _currentItems.value = _allHabits.sortedBy { it.title }
         }
 
         currentSortingType = sortingField

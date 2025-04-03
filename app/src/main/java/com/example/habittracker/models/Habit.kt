@@ -2,10 +2,13 @@ package com.example.habittracker.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import java.util.UUID
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-data class Item(
-    val id: String,
+@Entity(tableName = "habits")
+data class Habit(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long? = null,
     val title: String,
     val description: String,
     val priority: String,
@@ -14,15 +17,11 @@ data class Item(
     val frequency: String
 ) : Parcelable {
     companion object {
-        fun generateId(): UUID {
-            return UUID.randomUUID()
-        }
-
         @JvmField
-        val CREATOR = object : Parcelable.Creator<Item> {
-            override fun createFromParcel(parcel: Parcel): Item {
-                return Item(
-                    parcel.readString() ?: "",
+        val CREATOR = object : Parcelable.Creator<Habit> {
+            override fun createFromParcel(parcel: Parcel): Habit {
+                return Habit(
+                    parcel.readString()?.toLong(),
                     parcel.readString() ?: "",
                     parcel.readString() ?: "",
                     parcel.readString() ?: "",
@@ -32,14 +31,14 @@ data class Item(
                 )
             }
 
-            override fun newArray(size: Int): Array<Item?> {
+            override fun newArray(size: Int): Array<Habit?> {
                 return arrayOfNulls(size)
             }
         }
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(id)
+        parcel.writeString(id.toString())
         parcel.writeString(title)
         parcel.writeString(description)
         parcel.writeString(priority)
