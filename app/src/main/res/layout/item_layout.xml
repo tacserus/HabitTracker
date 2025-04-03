@@ -3,7 +3,7 @@
     <data>
         <variable
             name="item"
-            type="com.example.habittracker.models.Item" />
+            type="com.example.habittracker.models.Habit" />
     </data>
     <androidx.cardview.widget.CardView
         xmlns:android="http://schemas.android.com/apk/res/android"

@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/habit_edit_name"
-            android:text="@{viewModel.item.title}" />
+            android:text="@{viewModel.stateLiveData.title}" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/habit_edit_description"
-            android:text="@{viewModel.item.description}" />
+            android:text="@{viewModel.stateLiveData.description}" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/habit_edit_quantity"
             android:inputType="number"
-            android:text="@{viewModel.item.quantity}" />
+            android:text="@{viewModel.stateLiveData.quantity}" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -113,7 +113,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/habit_edit_frequency"
             android:inputType="number"
-            android:text="@{viewModel.item.frequency}" />
+            android:text="@{viewModel.stateLiveData.frequency}" />
 
         <LinearLayout
             style="?android:attr/buttonBarStyle"

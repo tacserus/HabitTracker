@@ -1,26 +1,29 @@
 package com.example.habittracker.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.RadioButton
-import androidx.fragment.app.activityViewModels
 import com.example.habittracker.R
 import com.example.habittracker.databinding.FragmentBottomSheetBinding
 import com.example.habittracker.enums.FilterType
 import com.example.habittracker.enums.SortingType
 import com.example.habittracker.viewmodels.HabitListViewModel
+import com.example.habittracker.viewmodels.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_sheet) {
     private lateinit var binding: FragmentBottomSheetBinding
-    private val habitListViewModel: HabitListViewModel by activityViewModels()
+    private lateinit var habitListViewModel: HabitListViewModel
 
     private val TAG: String = "bsFragment"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        habitListViewModel = ViewModelProvider.instance.getHabitListViewModel(requireActivity())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,7 +79,6 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
 
         val searchingWord = binding.searchEditText.text.toString()
 
-        Log.i(TAG, "data: $frequency $quantity")
         if (frequency.isNotBlank()) {
             filters[FilterType.FREQUENCY] = frequency
         }

@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.example.habittracker.R
 import com.example.habittracker.adapters.HabitPagerAdapter
 import com.example.habittracker.databinding.FragmentHabitPagerBinding
-import com.example.habittracker.enums.HabitType
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -36,8 +36,8 @@ class HabitViewPagerFragment : Fragment() {
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
-                0 -> HabitType.GoodHabits.description
-                1 -> HabitType.BadHabits.description
+                0 -> resources.getString(R.string.good_habits)
+                1 -> resources.getString(R.string.bad_habits)
                 else -> null
             }
         }.attach()
