@@ -75,6 +75,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.room.common)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.runner)
+    implementation(libs.androidx.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -87,4 +89,7 @@ dependencies {
 
     implementation(libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)
+
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
 }

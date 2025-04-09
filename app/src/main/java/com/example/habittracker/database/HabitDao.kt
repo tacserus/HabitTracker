@@ -18,10 +18,10 @@ interface HabitDao {
     fun getAllItems(): LiveData<List<Habit>>
 
     @Update
-    fun updateItem(nameEntity: Habit)
+    suspend fun updateItem(nameEntity: Habit)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertItem(nameEntity: Habit)
+    suspend fun insertItem(nameEntity: Habit)
 
     @Delete
     fun deleteItem(nameEntity: Habit)

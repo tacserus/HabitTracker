@@ -6,21 +6,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.habittracker.R
 import com.example.habittracker.adapters.RecyclerViewAdapter
+import com.example.habittracker.database.App
+import com.example.habittracker.database.HabitsRepository
 import com.example.habittracker.databinding.FragmentHabitsBinding
 import com.example.habittracker.enums.HabitType
 import com.example.habittracker.viewmodels.HabitListViewModel
-import com.example.habittracker.viewmodels.ViewModelProvider
+import com.example.habittracker.viewmodels.ViewModelFactory
 
 class HabitsFragment : Fragment(R.layout.fragment_habits) {
-
-    private lateinit var habitListViewModel: HabitListViewModel
     private lateinit var binding: FragmentHabitsBinding
 
-    private lateinit var type: HabitType
+    private lateinit var habitType: HabitType
+
+    private val habitListViewModel: HabitListViewModel by activityViewModels {
+        ViewModelFactory(
+            habitsRepository = HabitsRepository(
+                (requireActivity().application as App).database
+            ),
+            application = requireActivity().application
+        )
+    }
 
     companion object {
         private const val TAG = "bad_habits_fragment"
@@ -41,14 +51,12 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
 
         arguments?.let {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                type = it.getParcelable(HABITS_TYPE, HabitType::class.java)!!
+                habitType = it.getParcelable(HABITS_TYPE, HabitType::class.java)!!
             } else {
                 @Suppress("DEPRECATION")
-                type = it.getParcelable(HABITS_TYPE)!!
+                habitType = it.getParcelable(HABITS_TYPE)!!
             }
         }
-
-        habitListViewModel = ViewModelProvider.instance.getHabitListViewModel(requireActivity())
     }
 
     override fun onCreateView(
@@ -65,11 +73,11 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        when (type) {
-            HabitType.GOODHABIT-> {
+        when (habitType) {
+            HabitType.GoodHabit-> {
                 binding.listTitle.text = resources.getString(R.string.good_habits)
             }
-            HabitType.BADHABIT -> {
+            HabitType.BadHabit -> {
                 binding.listTitle.text = resources.getString(R.string.bad_habits)
             }
         }
@@ -78,13 +86,21 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         val adapter = RecyclerViewAdapter { id -> openAddItemFragment(id) }
         binding.recyclerView.adapter = adapter
 
-        habitListViewModel.items.observe(viewLifecycleOwner) { items ->
-            adapter.submit(items.filter { it.type == type.description })
+        when (habitType) {
+            HabitType.GoodHabit -> habitListViewModel.goodHabits.observe(viewLifecycleOwner) {
+                adapter.submit(it)
+            }
+            HabitType.BadHabit -> habitListViewModel.badHabits.observe(viewLifecycleOwner) {
+                adapter.submit(it)
+            }
         }
 
         binding.searchFab.setOnClickListener {
             val filterSortBottomSheet = BottomSheetFragment()
-            filterSortBottomSheet.show(parentFragmentManager, BottomSheetFragment::class.java.simpleName)
+            filterSortBottomSheet.show(
+                parentFragmentManager,
+                BottomSheetFragment::class.java.simpleName
+            )
         }
 
         binding.addingFab.setOnClickListener {
@@ -92,9 +108,9 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         }
     }
 
-    private fun openAddItemFragment(id: Long? = null) {
+    private fun openAddItemFragment(id: String? = null) {
         val bundle = Bundle().apply {
-            putString("id", id.toString())
+            putString("id", id)
         }
 
         findNavController().navigate(R.id.addHabitFragment, bundle)

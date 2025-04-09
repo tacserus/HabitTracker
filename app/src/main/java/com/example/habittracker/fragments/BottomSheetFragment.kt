@@ -5,25 +5,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import androidx.fragment.app.activityViewModels
 import com.example.habittracker.R
+import com.example.habittracker.database.App
+import com.example.habittracker.database.HabitsRepository
 import com.example.habittracker.databinding.FragmentBottomSheetBinding
 import com.example.habittracker.enums.FilterType
 import com.example.habittracker.enums.SortingType
 import com.example.habittracker.viewmodels.HabitListViewModel
-import com.example.habittracker.viewmodels.ViewModelProvider
+import com.example.habittracker.viewmodels.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_sheet) {
     private lateinit var binding: FragmentBottomSheetBinding
-    private lateinit var habitListViewModel: HabitListViewModel
+    private val habitListViewModel: HabitListViewModel by activityViewModels {
+        ViewModelFactory(
+            habitsRepository = HabitsRepository(
+                (requireActivity().application as App).database
+            ),
+            application = requireActivity().application
+        )
+    }
 
     private val TAG: String = "bsFragment"
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        habitListViewModel = ViewModelProvider.instance.getHabitListViewModel(requireActivity())
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,7 +66,7 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
 
         for (i in 0 until binding.sortRadioGroup.childCount) {
             val radioButton = binding.sortRadioGroup.getChildAt(i) as RadioButton
-            if (radioButton.text == sortingType.description) {
+            if (radioButton.text == requireContext().getString(sortingType.id)) {
                 binding.sortRadioGroup.check(radioButton.id)
                 break
             }
@@ -89,11 +93,7 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
 
         val selectedSortingType = getSelectedSortingType()
 
-        habitListViewModel.sortByField(selectedSortingType)
-        habitListViewModel.applyFilters(filters)
-        if (searchingWord.isNotBlank()) {
-            habitListViewModel.findByWord(searchingWord)
-        }
+        habitListViewModel.applyOptions(selectedSortingType, filters, searchingWord)
     }
 
     private fun getSelectedSortingType(): SortingType {
