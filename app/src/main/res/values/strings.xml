@@ -39,7 +39,7 @@
     <string name="zero">0</string>
     <string name="sorting">Сортировка</string>
 
-    <string name="table_name">Habits</string>
+    <string name="table_name">HabitsTracker</string>
     <string name="by_quantity">По количеству</string>
     <string name="by_frequency">По частоте</string>
 

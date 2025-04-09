@@ -1,7 +1,7 @@
 package com.example.habittracker.models
 
 data class AddHabitState (
-    val id: Long?,
+    val id: String,
     val title: String,
     val description: String,
     val priority: String,

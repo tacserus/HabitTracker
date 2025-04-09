@@ -1,52 +1,89 @@
 package com.example.habittracker.viewmodels
 
+import android.app.Application
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.habittracker.database.HabitsRepository
 import com.example.habittracker.enums.HabitType
+import com.example.habittracker.models.AddHabitEvent
 import com.example.habittracker.models.AddHabitState
 import com.example.habittracker.models.Habit
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
-class AddHabitViewModel(private val habitsRepository: HabitsRepository) : ViewModel() {
+class AddHabitViewModel(
+    private val habitsRepository: HabitsRepository,
+    application: Application,
+    private val id: String
+) : ViewModel() {
+    private val TAG = "add_habit_fragment"
     private val _stateLiveData = MutableLiveData<AddHabitState>()
+    private val _events = MutableSharedFlow<AddHabitEvent>()
+    val events = _events.asSharedFlow()
     val stateLiveData: LiveData<AddHabitState> get() = _stateLiveData
 
     init {
+        val selectedHabit = habitsRepository.getHabitById(id)
+
         _stateLiveData.value = AddHabitState(
-            id = null,
-            title = "",
-            description = "",
-            priority = "",
-            type = HabitType.GOODHABIT.description,
-            quantity = "",
-            frequency = ""
+            id = selectedHabit?.id ?: "",
+            title = selectedHabit?.title ?: "",
+            description = selectedHabit?.description ?: "",
+            priority = selectedHabit?.priority ?: "",
+            type = selectedHabit?.type ?: application.getString(HabitType.GoodHabit.id),
+            quantity = selectedHabit?.quantity ?: "",
+            frequency = selectedHabit?.frequency ?: ""
         )
     }
 
-    fun fillStateForEditMode(id: String) {
-        if (id == "null")
-            return
+    fun onSaveClicked() {
+        if (id.isNotBlank()) {
+            updateHabit()
+        } else {
+            addHabit()
+        }
 
-        val habit = habitsRepository.getHabitById(id)
+        onNavigateButtonClicked()
+    }
 
-        _stateLiveData.value = AddHabitState(
-            id = habit?.id,
-            title = habit?.title ?: "",
-            description = habit?.description ?: "",
-            priority = habit?.priority ?: "",
-            type = habit?.type ?: HabitType.GOODHABIT.description,
-            quantity = habit?.quantity ?: "",
-            frequency = habit?.frequency ?: ""
+    fun onNavigateButtonClicked() {
+        viewModelScope.launch {
+            _events.emit(AddHabitEvent.NavigateBack)
+        }
+    }
+
+    private fun updateHabit() {
+        val updatedHabit = getHabitFromState()
+
+        viewModelScope.launch {
+            habitsRepository.updateHabit(updatedHabit)
+        }
+    }
+
+    private fun addHabit() {
+        val newHabit = getHabitFromState()
+
+        viewModelScope.launch {
+            habitsRepository.addHabit(newHabit)
+        }
+    }
+
+    private fun getHabitFromState(): Habit {
+        val state = _stateLiveData.value
+
+        return Habit(
+            id = if (state?.id?.isNotBlank() == true) state.id else Habit.getRandomId(),
+            title = state?.title ?: "",
+            description = state?.description ?: "",
+            type = state?.type ?: "",
+            priority = state?.priority ?: "",
+            quantity = state?.quantity ?: "",
+            frequency = state?.frequency ?: ""
         )
-    }
-
-    fun updateHabit() {
-        habitsRepository.updateHabit(getHabit())
-    }
-
-    fun addHabit() {
-        habitsRepository.addHabit(getHabit())
     }
 
     fun onTitleChanged(newTitle: String) {
@@ -71,29 +108,5 @@ class AddHabitViewModel(private val habitsRepository: HabitsRepository) : ViewMo
 
     fun onFrequencyChanged(newFrequency: String) {
         _stateLiveData.value = stateLiveData.value?.copy(frequency = newFrequency)
-    }
-
-    private fun getHabit(): Habit {
-        return Habit(
-            id = _stateLiveData.value!!.id,
-            title = _stateLiveData.value?.title ?: "",
-            description = _stateLiveData.value?.description ?: "",
-            priority = _stateLiveData.value?.priority ?: "",
-            type = _stateLiveData.value?.type ?: "",
-            quantity = _stateLiveData.value?.quantity ?: "",
-            frequency = _stateLiveData.value?.frequency ?: ""
-        )
-    }
-
-    fun clearState() {
-        _stateLiveData.value = AddHabitState(
-            id = null,
-            title = "",
-            description = "",
-            priority = "",
-            type = "",
-            quantity = "",
-            frequency = ""
-        )
     }
 }

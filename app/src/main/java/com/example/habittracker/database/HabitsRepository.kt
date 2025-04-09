@@ -12,11 +12,11 @@ class HabitsRepository(private val habitsDb: HabitsDb) {
         return habitsDb.habitDao.getAllItems()
     }
 
-    fun updateHabit(habit: Habit) {
+    suspend fun updateHabit(habit: Habit) {
         habitsDb.habitDao.updateItem(habit)
     }
 
-    fun addHabit(habit: Habit) {
+    suspend fun addHabit(habit: Habit) {
         habitsDb.habitDao.insertItem(habit)
     }
 

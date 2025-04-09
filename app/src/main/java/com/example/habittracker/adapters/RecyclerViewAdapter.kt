@@ -10,7 +10,7 @@ import com.example.habittracker.holders.ViewHolder
 
 
 class RecyclerViewAdapter(
-    private val onItemClicked: (Long?) -> Unit
+    private val onItemClicked: (String) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
     private var habits = listOf<Habit>()
 
