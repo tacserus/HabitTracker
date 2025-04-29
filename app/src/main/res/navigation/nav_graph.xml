@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/habitViewPagerFragment"
-        android:name="com.example.habittracker.fragments.HabitViewPagerFragment">
+        android:name="com.example.habittracker.presentation.fragments.HabitViewPagerFragment">
 
         <action
             android:id="@+id/action_viewPagerFragment_to_addHabitFragment"
@@ -15,7 +15,7 @@
 
     <fragment
         android:id="@+id/goodHabitsFragment"
-        android:name="com.example.habittracker.fragments.HabitsFragment">
+        android:name="com.example.habittracker.presentation.fragments.HabitsFragment">
 
         <action
             android:id="@+id/action_goodHabitsFragment_to_addHabitFragment"
@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/badHabitsFragment"
-        android:name="com.example.habittracker.fragments.HabitsFragment">
+        android:name="com.example.habittracker.presentation.fragments.HabitsFragment">
 
         <action
             android:id="@+id/action_badHabitsFragment_to_addHabitFragment"
@@ -33,9 +33,9 @@
 
     <fragment
         android:id="@+id/addHabitFragment"
-        android:name="com.example.habittracker.fragments.AddHabitFragment"/>
+        android:name="com.example.habittracker.presentation.fragments.AddHabitFragment"/>
 
     <fragment
         android:id="@+id/infoFragment"
-        android:name="com.example.habittracker.fragments.InfoFragment"/>
+        android:name="com.example.habittracker.presentation.fragments.InfoFragment"/>
 </navigation>
