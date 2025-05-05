@@ -2,8 +2,9 @@ package com.example.habittracker.data.database
 
 import androidx.lifecycle.LiveData
 import com.example.habittracker.domain.models.Habit
+import retrofit2.Retrofit
 
-class HabitsRepository(private val habitsDb: HabitsDb) {
+class HabitsRepository(private val habitsDb: HabitsDb, private val retrofit: Retrofit) {
     fun getHabitById(id: String): Habit? {
         return habitsDb.habitDao.getItemById(id)
     }

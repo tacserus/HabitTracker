@@ -1,7 +1,6 @@
 package com.example.habittracker.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,34 +8,31 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.habittracker.R
 import com.example.habittracker.data.database.App
-import com.example.habittracker.data.database.HabitsRepository
 import com.example.habittracker.databinding.FragmentAddHabitBinding
 import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.domain.enums.Priority
 import com.example.habittracker.domain.models.AddHabitEvent
 import com.example.habittracker.presentation.viewmodels.AddHabitViewModel
-import com.example.habittracker.presentation.viewmodels.ViewModelFactory
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
     private val TAG = "add_habit_fragment"
     private lateinit var binding: FragmentAddHabitBinding
 
-    private val addHabitViewModel: AddHabitViewModel by viewModels {
-        val id = arguments?.getString("id") ?: ""
+    @Inject
+    lateinit var addHabitViewModel: AddHabitViewModel
 
-        ViewModelFactory(
-            habitsRepository = HabitsRepository(
-                (requireActivity().application as App).database
-            ),
-            application = requireActivity().application,
-            id = id
-        )
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        (requireActivity().application as App).appComponent.inject(this)
+
+        addHabitViewModel.initState(arguments?.getString("id") ?: "")
     }
 
     override fun onCreateView(
@@ -57,7 +53,6 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
 
         lifecycleScope.launch {
             addHabitViewModel.events.collect { event ->
-                Log.i(TAG, "clicked")
                 when (event) {
                     is AddHabitEvent.NavigateBack -> {
                         findNavController().popBackStack()

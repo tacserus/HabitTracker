@@ -6,31 +6,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.habittracker.R
-import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
 import com.example.habittracker.data.database.App
-import com.example.habittracker.data.database.HabitsRepository
 import com.example.habittracker.databinding.FragmentHabitsBinding
 import com.example.habittracker.domain.enums.HabitType
+import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
-import com.example.habittracker.presentation.viewmodels.ViewModelFactory
+import javax.inject.Inject
 
 class HabitsFragment : Fragment(R.layout.fragment_habits) {
     private lateinit var binding: FragmentHabitsBinding
 
     private lateinit var habitType: HabitType
 
-    private val habitListViewModel: HabitListViewModel by activityViewModels {
-        ViewModelFactory(
-            habitsRepository = HabitsRepository(
-                (requireActivity().application as App).database
-            ),
-            application = requireActivity().application
-        )
-    }
+    @Inject
+    lateinit var habitListViewModel: HabitListViewModel
 
     companion object {
         private const val TAG = "bad_habits_fragment"
@@ -48,6 +40,9 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        (requireActivity().application as App).appComponent.inject(this)
+
 
         arguments?.let {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

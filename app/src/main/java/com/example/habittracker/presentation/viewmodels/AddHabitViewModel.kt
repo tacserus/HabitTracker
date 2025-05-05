@@ -1,7 +1,6 @@
 package com.example.habittracker.presentation.viewmodels
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,16 +16,17 @@ import kotlinx.coroutines.launch
 
 class AddHabitViewModel(
     private val habitsRepository: HabitsRepository,
-    application: Application,
-    private val id: String
+    private val application: Application
 ) : ViewModel() {
     private val TAG = "add_habit_fragment"
     private val _stateLiveData = MutableLiveData<AddHabitState>()
     private val _events = MutableSharedFlow<AddHabitEvent>()
     val events = _events.asSharedFlow()
     val stateLiveData: LiveData<AddHabitState> get() = _stateLiveData
+    var id: String = ""
 
-    init {
+    fun initState(id: String) {
+        this.id = id
         val selectedHabit = habitsRepository.getHabitById(id)
 
         _stateLiveData.value = AddHabitState(

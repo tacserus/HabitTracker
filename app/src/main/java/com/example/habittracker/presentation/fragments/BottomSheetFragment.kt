@@ -5,29 +5,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import androidx.fragment.app.activityViewModels
 import com.example.habittracker.R
 import com.example.habittracker.data.database.App
-import com.example.habittracker.data.database.HabitsRepository
 import com.example.habittracker.databinding.FragmentBottomSheetBinding
 import com.example.habittracker.domain.enums.FilterType
 import com.example.habittracker.domain.enums.SortingType
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
-import com.example.habittracker.presentation.viewmodels.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import javax.inject.Inject
 
 class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_sheet) {
     private lateinit var binding: FragmentBottomSheetBinding
-    private val habitListViewModel: HabitListViewModel by activityViewModels {
-        ViewModelFactory(
-            habitsRepository = HabitsRepository(
-                (requireActivity().application as App).database
-            ),
-            application = requireActivity().application
-        )
-    }
+
+    @Inject
+    lateinit var habitListViewModel: HabitListViewModel
 
     private val TAG: String = "bsFragment"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        (requireActivity().application as App).appComponent.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
