@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import com.example.habittracker.R
-import com.example.habittracker.data.database.App
+import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentBottomSheetBinding
 import com.example.habittracker.domain.enums.FilterType
 import com.example.habittracker.domain.enums.SortingType

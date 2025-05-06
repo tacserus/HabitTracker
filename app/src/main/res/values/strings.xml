@@ -46,4 +46,6 @@
     <string name="sometimes">Иногда</string>
     <string name="often">Часто</string>
     <string name="daily">Ежедневно</string>
+
+    <string name="complete">Выполнить</string>
 </resources>

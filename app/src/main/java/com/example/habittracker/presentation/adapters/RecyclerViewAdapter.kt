@@ -10,14 +10,16 @@ import com.example.habittracker.presentation.holders.ViewHolder
 
 
 class RecyclerViewAdapter(
-    private val onItemClicked: (String) -> Unit
+    private val onItemClicked: (String) -> Unit,
+    private val onCompleteClicked: (String) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
     private var habits = listOf<Habit>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemLayoutBinding.inflate(inflater, parent, false)
-        return ViewHolder(binding)
+
+        return ViewHolder(binding, onCompleteClicked)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

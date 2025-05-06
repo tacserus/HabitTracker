@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.habittracker.R
-import com.example.habittracker.data.database.App
+import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentAddHabitBinding
 import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.domain.enums.Priority

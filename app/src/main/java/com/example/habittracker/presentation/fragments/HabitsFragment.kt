@@ -9,9 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.habittracker.R
-import com.example.habittracker.data.database.App
+import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentHabitsBinding
 import com.example.habittracker.domain.enums.HabitType
+import com.example.habittracker.presentation.adapters.HabitDecoration
 import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
 import javax.inject.Inject
@@ -78,7 +79,11 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         }
 
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        val adapter = RecyclerViewAdapter { id -> openAddItemFragment(id) }
+        val adapter = RecyclerViewAdapter(
+            onItemClicked  = { id -> openAddItemFragment(id) },
+            onCompleteClicked = { id -> complete(id) }
+        )
+        binding.recyclerView.addItemDecoration(HabitDecoration(16))
         binding.recyclerView.adapter = adapter
 
         when (habitType) {
@@ -101,6 +106,12 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         binding.addingFab.setOnClickListener {
             openAddItemFragment()
         }
+    }
+
+    private fun complete(id: String) {
+        habitListViewModel.saveCompletedDate(id, habitType, requireContext())
+
+
     }
 
     private fun openAddItemFragment(id: String? = null) {

@@ -1,6 +1,8 @@
 package com.example.habittracker.presentation.viewmodels
 
 import android.app.Application
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,6 +37,21 @@ class HabitListViewModel(
 
     fun deleteHabit(habit: Habit) {
         habitsRepository.deleteHabit(habit)
+    }
+
+    fun saveCompletedDate(id: String, habitType: HabitType, context: Context) {
+        val habit = habitsRepository.getHabitById(id)
+
+        if (habit != null) {
+            if (habitType == HabitType.GoodHabit) {
+                Toast.makeText(context, "You are breathtaking!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Стоит выполнить еще n раз", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Хватит это делать!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Можно выполнить еще n раз", Toast.LENGTH_SHORT).show()
+            }
+
+        }
     }
 
     private fun applyFilters(filters: MutableMap<FilterType, String>) {

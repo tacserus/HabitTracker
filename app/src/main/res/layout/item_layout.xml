@@ -169,6 +169,13 @@
                         android:text="@{item.frequency}"/>
                 </LinearLayout>
             </LinearLayout>
+            <Button
+                android:id="@+id/complete_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:text="@string/complete">
+            </Button>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </layout>
