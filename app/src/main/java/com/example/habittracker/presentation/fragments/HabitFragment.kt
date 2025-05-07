@@ -17,7 +17,7 @@ import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
 import javax.inject.Inject
 
-class HabitsFragment : Fragment(R.layout.fragment_habits) {
+class HabitFragment : Fragment(R.layout.fragment_habits) {
     private lateinit var binding: FragmentHabitsBinding
 
     private lateinit var habitType: HabitType
@@ -29,8 +29,8 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         private const val TAG = "bad_habits_fragment"
         private const val HABITS_TYPE = "habits_type"
 
-        fun newInstance(type: HabitType): HabitsFragment {
-            val fragment = HabitsFragment()
+        fun newInstance(type: HabitType): HabitFragment {
+            val fragment = HabitFragment()
             val args = Bundle().apply {
                 putParcelable(HABITS_TYPE, type)
             }
@@ -81,7 +81,8 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         val adapter = RecyclerViewAdapter(
             onItemClicked  = { id -> openAddItemFragment(id) },
-            onCompleteClicked = { id -> complete(id) }
+            onCompleteClicked = { id -> complete(id) },
+            onDeleteClicked = { id -> delete(id) }
         )
         binding.recyclerView.addItemDecoration(HabitDecoration(16))
         binding.recyclerView.adapter = adapter
@@ -106,12 +107,23 @@ class HabitsFragment : Fragment(R.layout.fragment_habits) {
         binding.addingFab.setOnClickListener {
             openAddItemFragment()
         }
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            habitListViewModel.sync()
+            habitListViewModel.syncComplete.observe(viewLifecycleOwner) { isComplete ->
+                if (isComplete) {
+                    binding.swipeRefreshLayout.isRefreshing = false
+                }
+            }
+        }
     }
 
     private fun complete(id: String) {
         habitListViewModel.saveCompletedDate(id, habitType, requireContext())
+    }
 
-
+    private fun delete(id: String) {
+        habitListViewModel.deleteHabit(id)
     }
 
     private fun openAddItemFragment(id: String? = null) {

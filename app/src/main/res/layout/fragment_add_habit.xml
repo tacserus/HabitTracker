@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/habit_edit_quantity"
             android:inputType="number"
-            android:text="@{viewModel.stateLiveData.quantity}" />
+            android:text="@{viewModel.stateLiveData.count}" />
 
         <TextView
             android:layout_width="wrap_content"

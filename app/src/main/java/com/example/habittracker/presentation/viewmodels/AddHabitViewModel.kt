@@ -5,17 +5,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habittracker.data.database.HabitsRepository
+import com.example.habittracker.data.database.HabitRepository
 import com.example.habittracker.domain.enums.HabitType
+import com.example.habittracker.domain.enums.Priority
 import com.example.habittracker.domain.models.AddHabitEvent
 import com.example.habittracker.domain.models.AddHabitState
-import com.example.habittracker.domain.models.Habit
+import com.example.habittracker.domain.models.HabitEntity
+import com.example.habittracker.domain.HabitMapper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddHabitViewModel(
-    private val habitsRepository: HabitsRepository,
+    private val habitRepository: HabitRepository,
     private val application: Application
 ) : ViewModel() {
     private val TAG = "add_habit_fragment"
@@ -27,17 +30,27 @@ class AddHabitViewModel(
 
     fun initState(id: String) {
         this.id = id
-        val selectedHabit = habitsRepository.getHabitById(id)
 
-        _stateLiveData.value = AddHabitState(
-            id = selectedHabit?.id ?: "",
-            title = selectedHabit?.title ?: "",
-            description = selectedHabit?.description ?: "",
-            priority = selectedHabit?.priority ?: "",
-            type = selectedHabit?.type ?: application.getString(HabitType.GoodHabit.id),
-            quantity = selectedHabit?.quantity ?: "",
-            frequency = selectedHabit?.frequency ?: ""
-        )
+        viewModelScope.launch {
+            val selectedHabit = habitRepository.getHabitById(id)
+
+            if (selectedHabit != null) {
+                val selectedHabitState = HabitMapper.INSTANCE.entityToState(selectedHabit, application)
+
+                _stateLiveData.value = selectedHabitState
+            } else {
+                _stateLiveData.value = AddHabitState(
+                    id = UUID.randomUUID().toString(),
+                    apiId = null,
+                    title = "",
+                    description = "",
+                    priority = application.getString(Priority.Lite.id),
+                    type = application.getString(HabitType.GoodHabit.id),
+                    count = "",
+                    frequency = ""
+                )
+            }
+        }
     }
 
     fun onSaveClicked() {
@@ -60,7 +73,7 @@ class AddHabitViewModel(
         val updatedHabit = getHabitFromState()
 
         viewModelScope.launch {
-            habitsRepository.updateHabit(updatedHabit)
+            habitRepository.updateHabit(updatedHabit)
         }
     }
 
@@ -68,22 +81,14 @@ class AddHabitViewModel(
         val newHabit = getHabitFromState()
 
         viewModelScope.launch {
-            habitsRepository.addHabit(newHabit)
+            habitRepository.addHabit(newHabit)
         }
     }
 
-    private fun getHabitFromState(): Habit {
+    private fun getHabitFromState(): HabitEntity {
         val state = _stateLiveData.value
 
-        return Habit(
-            id = if (state?.id?.isNotBlank() == true) state.id else Habit.getRandomId(),
-            title = state?.title ?: "",
-            description = state?.description ?: "",
-            type = state?.type ?: "",
-            priority = state?.priority ?: "",
-            quantity = state?.quantity ?: "",
-            frequency = state?.frequency ?: ""
-        )
+        return HabitMapper.INSTANCE.stateToEntity(state!!, application)
     }
 
     fun onTitleChanged(newTitle: String) {
@@ -102,8 +107,8 @@ class AddHabitViewModel(
         _stateLiveData.value = stateLiveData.value?.copy(type = newType)
     }
 
-    fun onQuantityChanged(newQuantity: String) {
-        _stateLiveData.value = stateLiveData.value?.copy(quantity = newQuantity)
+    fun onCountChanged(newCount: String) {
+        _stateLiveData.value = stateLiveData.value?.copy(count = newCount)
     }
 
     fun onFrequencyChanged(newFrequency: String) {

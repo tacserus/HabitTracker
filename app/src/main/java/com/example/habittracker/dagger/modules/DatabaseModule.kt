@@ -3,12 +3,12 @@ package com.example.habittracker.dagger.modules
 import android.content.Context
 import androidx.room.Room
 import com.example.habittracker.R
+import com.example.habittracker.data.api.HabitApiService
 import com.example.habittracker.data.database.HabitDao
+import com.example.habittracker.data.database.HabitRepository
 import com.example.habittracker.data.database.HabitsDb
-import com.example.habittracker.data.database.HabitsRepository
 import dagger.Module
 import dagger.Provides
-import retrofit2.Retrofit
 import javax.inject.Singleton
 
 
@@ -32,7 +32,10 @@ class DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideRepository(habitsDb: HabitsDb, retrofit: Retrofit): HabitsRepository {
-        return HabitsRepository(habitsDb, retrofit)
+    fun provideRepository(
+        habitDao: HabitDao,
+        habitApiService: HabitApiService
+    ): HabitRepository {
+        return HabitRepository(habitDao, habitApiService)
     }
 }

@@ -82,7 +82,7 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
         }
 
         binding.editTextQuantity.addTextChangedListener {
-            addHabitViewModel.onQuantityChanged(it.toString())
+            addHabitViewModel.onCountChanged(it.toString())
         }
 
         binding.editTextFrequency.addTextChangedListener {
