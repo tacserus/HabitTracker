@@ -7,22 +7,28 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.habittracker.domain.models.Habit
+import com.example.habittracker.domain.models.HabitEntity
 
 @Dao
 interface HabitDao {
     @Query("SELECT * FROM habits WHERE id = :id")
-    fun getItemById(id: String): Habit?
+    suspend fun getItemById(id: String): HabitEntity?
 
-    @Query("SELECT * " + "FROM habits")
-    fun getAllItems(): LiveData<List<Habit>>
+    @Query("SELECT * FROM habits WHERE isDeleted = 0")
+    fun getAllItems(): LiveData<List<HabitEntity>>
 
-    @Update
-    suspend fun updateItem(nameEntity: Habit)
+    @Query("SELECT * FROM habits WHERE isDeleted = 1")
+    suspend fun getDeletedHabits(): List<HabitEntity>
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateItem(nameEntity: HabitEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertItem(nameEntity: Habit)
+    suspend fun insertItem(nameEntity: HabitEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHabits(habits: List<HabitEntity>)
 
     @Delete
-    fun deleteItem(nameEntity: Habit)
+    fun deleteItem(nameEntity: HabitEntity)
 }

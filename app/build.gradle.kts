@@ -28,6 +28,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "API_TOKEN", "${property("API_TOKEN")}")
+        }
+        debug {
+            buildConfigField("String", "API_TOKEN", "${property("API_TOKEN")}")
         }
     }
 
@@ -45,6 +49,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
         compose = true
     }
@@ -102,4 +107,6 @@ dependencies {
     implementation(libs.mapstruct)
     kapt(libs.mapstruct.processor.v160)
     implementation(libs.okhttp)
+
+    implementation(libs.androidx.swiperefreshlayout)
 }

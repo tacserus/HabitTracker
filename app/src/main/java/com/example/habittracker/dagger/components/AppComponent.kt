@@ -7,7 +7,7 @@ import com.example.habittracker.dagger.modules.HabitListViewModelModule
 import com.example.habittracker.dagger.modules.RetrofitModule
 import com.example.habittracker.presentation.fragments.AddHabitFragment
 import com.example.habittracker.presentation.fragments.BottomSheetFragment
-import com.example.habittracker.presentation.fragments.HabitsFragment
+import com.example.habittracker.presentation.fragments.HabitFragment
 import dagger.Component
 import javax.inject.Singleton
 
@@ -21,7 +21,7 @@ import javax.inject.Singleton
     AddHabitViewModelModule::class
 ])
 interface AppComponent {
-    fun inject(fragment: HabitsFragment)
+    fun inject(fragment: HabitFragment)
     fun inject(fragment: BottomSheetFragment)
     fun inject(fragment: AddHabitFragment)
 }
