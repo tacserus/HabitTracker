@@ -5,12 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import androidx.fragment.app.activityViewModels
 import com.example.habittracker.R
 import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentBottomSheetBinding
 import com.example.habittracker.domain.enums.FilterType
 import com.example.habittracker.domain.enums.SortingType
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
+import com.example.habittracker.presentation.viewmodels.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import javax.inject.Inject
 
@@ -18,7 +20,8 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
     private lateinit var binding: FragmentBottomSheetBinding
 
     @Inject
-    lateinit var habitListViewModel: HabitListViewModel
+    lateinit var viewModelFactory: ViewModelFactory
+    private val habitListViewModel: HabitListViewModel by activityViewModels { viewModelFactory }
 
     private val TAG: String = "bsFragment"
 

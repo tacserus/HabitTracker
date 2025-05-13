@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.habittracker.R
@@ -15,6 +16,7 @@ import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.presentation.adapters.HabitDecoration
 import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
+import com.example.habittracker.presentation.viewmodels.ViewModelFactory
 import javax.inject.Inject
 
 class HabitFragment : Fragment(R.layout.fragment_habits) {
@@ -23,7 +25,8 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
     private lateinit var habitType: HabitType
 
     @Inject
-    lateinit var habitListViewModel: HabitListViewModel
+    lateinit var viewModelFactory: ViewModelFactory
+    private val habitListViewModel: HabitListViewModel by activityViewModels { viewModelFactory }
 
     companion object {
         private const val TAG = "bad_habits_fragment"
