@@ -1,6 +1,5 @@
 package com.example.habittracker.presentation.viewmodels
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,8 +18,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class AddHabitViewModel(
-    private val habitRepository: HabitRepository,
-    private val application: Application
+    private val habitRepository: HabitRepository
 ) : ViewModel() {
     private val TAG = "add_habit_fragment"
     private val _stateLiveData = MutableLiveData<AddHabitState>()
@@ -29,14 +27,18 @@ class AddHabitViewModel(
     val stateLiveData: LiveData<AddHabitState> get() = _stateLiveData
     var id: String = ""
 
-    fun initState(id: String) {
+    fun initState(id: String, defaultPriority: String, defaultType: String) {
         this.id = id
 
         viewModelScope.launch {
             val selectedHabit = habitRepository.getHabitById(id)
 
             if (selectedHabit != null) {
-                val selectedHabitState = HabitMapper.INSTANCE.entityToState(selectedHabit, application)
+                val selectedHabitState = HabitMapper.INSTANCE.entityToState(
+                    selectedHabit,
+                    defaultPriority,
+                    defaultType
+                )
 
                 _stateLiveData.value = selectedHabitState
             } else {
@@ -45,8 +47,8 @@ class AddHabitViewModel(
                     apiId = null,
                     title = "",
                     description = "",
-                    priority = application.getString(Priority.Lite.id),
-                    type = application.getString(HabitType.GoodHabit.id),
+                    priority = defaultPriority,
+                    type = defaultType,
                     count = "",
                     frequency = "",
                     habitStatus = HabitStatus.ADD
@@ -55,11 +57,11 @@ class AddHabitViewModel(
         }
     }
 
-    fun onSaveClicked() {
+    fun onSaveClicked(priority: Priority, type: HabitType) {
         if (id.isNotBlank()) {
-            updateHabit()
+            updateHabit(priority, type)
         } else {
-            addHabit()
+            addHabit(priority, type)
         }
 
         onNavigateButtonClicked()
@@ -71,26 +73,26 @@ class AddHabitViewModel(
         }
     }
 
-    private fun updateHabit() {
-        val updatedHabit = getHabitFromState()
+    private fun updateHabit(priority: Priority, type: HabitType) {
+        val updatedHabit = getHabitFromState(priority, type)
 
         viewModelScope.launch {
             habitRepository.updateHabit(updatedHabit)
         }
     }
 
-    private fun addHabit() {
-        val newHabit = getHabitFromState()
+    private fun addHabit(priority: Priority, type: HabitType) {
+        val newHabit = getHabitFromState(priority, type)
 
         viewModelScope.launch {
             habitRepository.addHabit(newHabit)
         }
     }
 
-    private fun getHabitFromState(): HabitEntity {
+    private fun getHabitFromState(priority: Priority, type: HabitType): HabitEntity {
         val state = _stateLiveData.value
 
-        return HabitMapper.INSTANCE.stateToEntity(state!!, application)
+        return HabitMapper.INSTANCE.stateToEntity(state!!, priority, type)
     }
 
     fun onTitleChanged(newTitle: String) {

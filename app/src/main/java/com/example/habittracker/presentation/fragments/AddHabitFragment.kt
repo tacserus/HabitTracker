@@ -32,7 +32,11 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
 
         (requireActivity().application as App).appComponent.inject(this)
 
-        addHabitViewModel.initState(arguments?.getString("id") ?: "")
+        addHabitViewModel.initState(
+            arguments?.getString("id") ?: "",
+            requireContext().getString(Priority.Lite.id),
+            requireContext().getString(HabitType.GoodHabit.id)
+        )
     }
 
     override fun onCreateView(
@@ -93,7 +97,14 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
 
         binding.buttonSave.setOnClickListener {
             if (checkFieldsForSave()) {
-                addHabitViewModel.onSaveClicked()
+
+                val priority = Priority.entries.find {
+                    requireContext().getString(it.id) == addHabitViewModel.stateLiveData.value?.priority
+                } ?: Priority.Lite
+                val type = HabitType.entries.find {
+                    requireContext().getString(it.id) == addHabitViewModel.stateLiveData.value?.type
+                } ?: HabitType.GoodHabit
+                addHabitViewModel.onSaveClicked(priority, type)
             }
         }
         binding.buttonCancel.setOnClickListener {

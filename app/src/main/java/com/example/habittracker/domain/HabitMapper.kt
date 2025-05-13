@@ -1,6 +1,5 @@
 package com.example.habittracker.domain
 
-import android.app.Application
 import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.domain.enums.Priority
@@ -47,11 +46,7 @@ class HabitMapper {
         )
     }
 
-    fun stateToEntity(state: AddHabitState, application: Application): HabitEntity {
-        val priority = Priority.entries.find {
-            application.getString(it.id) == state.priority
-        } ?: Priority.Lite
-        val type = HabitType.entries.find { application.getString(it.id) == state.type } ?: HabitType.GoodHabit
+    fun stateToEntity(state: AddHabitState, priority: Priority, type: HabitType): HabitEntity {
         return HabitEntity(
             id = state.id,
             apiId = state.apiId,
@@ -67,14 +62,14 @@ class HabitMapper {
         )
     }
 
-    fun entityToState(habitEntity: HabitEntity, application: Application): AddHabitState {
+    fun entityToState(habitEntity: HabitEntity, defaultPriority: String, defaultType: String): AddHabitState {
         return AddHabitState(
             id = habitEntity.id,
             apiId = habitEntity.apiId,
             title = habitEntity.title,
             description = habitEntity.description,
-            priority = application.getString(habitEntity.priority.id),
-            type = application.getString(habitEntity.type.id),
+            priority = defaultPriority,
+            type = defaultType,
             count = habitEntity.count,
             frequency = habitEntity.frequency,
             habitStatus = if (habitEntity.apiId == null) HabitStatus.ADD else HabitStatus.UPDATE

@@ -1,6 +1,5 @@
 package com.example.habittracker.presentation.viewmodels
 
-import android.app.Application
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.LiveData
@@ -15,8 +14,7 @@ import com.example.habittracker.domain.models.HabitEntity
 import kotlinx.coroutines.launch
 
 class HabitListViewModel(
-    private val habitRepository: HabitRepository,
-    private val application: Application
+    private val habitRepository: HabitRepository
 ) : ViewModel() {
     private val currentFilters: MutableMap<FilterType, String> = mutableMapOf()
     private var currentSortingType: SortingType = SortingType.DEFAULT
