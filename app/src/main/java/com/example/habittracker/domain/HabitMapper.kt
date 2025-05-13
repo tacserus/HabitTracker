@@ -1,6 +1,7 @@
 package com.example.habittracker.domain
 
 import android.app.Application
+import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.domain.enums.Priority
 import com.example.habittracker.domain.models.AddHabitState
@@ -14,33 +15,35 @@ class HabitMapper {
         val INSTANCE: HabitMapper = HabitMapper()
     }
 
-    fun dtoToEntity(habitDto: HabitDto): HabitEntity {
+    fun dtoToEntity(dto: HabitDto, existingLocalId: String? = null): HabitEntity {
+        val localId = existingLocalId ?: UUID.randomUUID().toString()
         return HabitEntity(
-            id = habitDto.uid ?: UUID.randomUUID().toString(),
-            apiId = habitDto.uid,
-            title = habitDto.title,
-            description = habitDto.description,
-            priority = Priority.entries[habitDto.priority],
-            type = HabitType.entries[habitDto.type],
-            frequency = habitDto.frequency.toString(),
-            count = habitDto.count.toString(),
-            color = habitDto.color,
-            date = habitDto.date.toLong() * 1000
+            id = localId,
+            apiId = dto.uid,
+            title = dto.title,
+            description = dto.description,
+            priority = Priority.entries.toTypedArray().getOrElse(dto.priority) { Priority.Lite },
+            type = HabitType.entries.toTypedArray().getOrElse(dto.type) { HabitType.GoodHabit },
+            count = dto.count.toString(),
+            frequency = dto.frequency.toString(),
+            color = dto.color,
+            date = dto.date.toLong() * 1000,
+            habitStatus = HabitStatus.SYNCED
         )
     }
 
-    fun entityToDto(habitEntity: HabitEntity): HabitDto {
+    fun entityToDto(entity: HabitEntity): HabitDto {
         return HabitDto(
-            color = habitEntity.color,
-            count = habitEntity.count.toInt(),
-            date = (habitEntity.date / 1000).toInt(),
-            description = habitEntity.description,
-            done_dates = listOf(0),
-            frequency = habitEntity.frequency.toInt(),
-            priority = habitEntity.priority.ordinal,
-            title = habitEntity.title,
-            type = habitEntity.type.ordinal,
-            uid = habitEntity.apiId
+            uid = entity.apiId,
+            title = entity.title,
+            description = entity.description,
+            priority = entity.priority.ordinal,
+            type = entity.type.ordinal,
+            count = entity.count.toIntOrNull() ?: 0,
+            frequency = entity.frequency.toIntOrNull() ?: 0,
+            color = entity.color,
+            date = (entity.date / 1000).toInt(),
+            done_dates = listOf()
         )
     }
 
@@ -59,7 +62,8 @@ class HabitMapper {
             count = state.count,
             frequency = state.frequency,
             color = 0,
-            date = System.currentTimeMillis()
+            date = System.currentTimeMillis(),
+            habitStatus = state.habitStatus
         )
     }
 
@@ -73,6 +77,7 @@ class HabitMapper {
             type = application.getString(habitEntity.type.id),
             count = habitEntity.count,
             frequency = habitEntity.frequency,
+            habitStatus = if (habitEntity.apiId == null) HabitStatus.ADD else HabitStatus.UPDATE
         )
     }
 }

@@ -2,6 +2,7 @@ package com.example.habittracker.domain.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.domain.enums.Priority
 import java.io.Serializable
@@ -18,5 +19,5 @@ data class HabitEntity (
     val frequency: String,
     val color: Int,
     val date: Long,
-    var isDeleted: Boolean = false
+    val habitStatus: HabitStatus
 ) : Serializable

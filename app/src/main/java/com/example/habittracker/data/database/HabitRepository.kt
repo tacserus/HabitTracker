@@ -1,169 +1,199 @@
 package com.example.habittracker.data.database
 
+import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import com.example.habittracker.data.api.HabitApiService
 import com.example.habittracker.domain.HabitMapper
+import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.models.HabitEntity
 import com.example.habittracker.domain.models.HabitRequestUID
-import kotlinx.coroutines.delay
 
 class HabitRepository(
     private val habitDao: HabitDao,
     private val habitApiService: HabitApiService
 ) {
-    private companion object {
-        const val MAX_REPEAT_COUNT = 4
-        const val REPEAT_DELAY = 1000L
-    }
-
     suspend fun getHabitById(id: String): HabitEntity? {
-        return habitDao.getItemById(id)
+        return habitDao.getHabitById(id)
     }
 
     fun getAllHabits(): LiveData<List<HabitEntity>> {
-        return habitDao.getAllItems()
+        val allHabits = habitDao.getAllHabits()
+        val filteredHabits = MediatorLiveData<List<HabitEntity>>()
+
+        filteredHabits.addSource(allHabits) { habits ->
+            filteredHabits.value = habits.filter { it.habitStatus != HabitStatus.DELETE }
+        }
+
+        return filteredHabits
     }
 
     suspend fun updateHabit(habit: HabitEntity) {
-        insertHabitsForApi(listOf(habit))
+        habitDao.updateHabit(habit)
     }
 
     suspend fun addHabit(habit: HabitEntity) {
-        insertHabitsForApi(listOf(habit))
+        habitDao.insertHabit(habit)
     }
 
-    suspend fun deleteItem(habit: HabitEntity) {
-        habit.isDeleted = true
-        habitDao.insertItem(habit.copy())
-        deleteHabitsForApi(listOf(habit))
+    suspend fun deleteHabit(habit: HabitEntity) {
+        habitDao.insertHabit(habit.copy(habitStatus = HabitStatus.DELETE))
     }
 
-    suspend fun sync() {
-        val apiHabits = getHabitsFromApi()
-        val localHabits = getAllHabits().value ?: listOf()
-        val syncedHabits = joinHabits(localHabits, apiHabits)
-        val localDeletedHabits = habitDao.getDeletedHabits()
+    suspend fun syncHabits() {
+        Log.d("Sync", "Starting habit synchronization...")
 
-        insertHabitsForApi(syncedHabits)
-        deleteHabitsForApi(localDeletedHabits)
+        processLocalCreations()
+        processLocalUpdates()
+        processLocalDeletions()
+
+        fetchAndMergeServerData()
+
+        Log.d("Sync", "Habit synchronization finished.")
     }
 
-    private suspend fun getHabitsFromApi(): List<HabitEntity> {
-        var apiHabits = listOf<HabitEntity>()
-        var repeatCount = 0
-        var isSuccessful = false
+    private suspend fun processLocalCreations() {
+        val habitsToCreate = habitDao.getHabitsByStatus(HabitStatus.ADD)
+        if (habitsToCreate.isEmpty()) return
+        Log.d("Sync", "Processing ${habitsToCreate.size} local creations...")
 
-        while (!isSuccessful && repeatCount < MAX_REPEAT_COUNT) {
-            repeatCount++
+        for (localHabit in habitsToCreate) {
             try {
-                val response = habitApiService.getHabits()
-                if (response.isSuccessful) {
-                    apiHabits = response.body()?.map {
-                        HabitMapper.INSTANCE.dtoToEntity(it)
-                    } ?: listOf()
-                    isSuccessful = true
+                val requestDto = HabitMapper.INSTANCE.entityToDto(localHabit).copy(uid = null)
+                val response = habitApiService.putHabit(requestDto)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val createdDto = response.body()!!
+                    val updatedEntity = localHabit.copy(
+                        apiId = createdDto.uid,
+                        habitStatus = HabitStatus.SYNCED
+                    )
+                    habitDao.updateHabit(updatedEntity)
+                    Log.i("Sync", "Successfully created habit on server: ${updatedEntity.title} (API ID: ${updatedEntity.apiId})")
+                } else {
+                    Log.e("Sync", "Failed to create habit '${localHabit.title}' on server. Code: ${response.code()}. Message: ${response.message()}")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("Sync", "Exception creating habit '${localHabit.title}' on server: ${e.message}", e)
             }
-
-            if (!isSuccessful)
-                delay(REPEAT_DELAY)
         }
-        return apiHabits
     }
 
-    private fun joinHabits(localHabits: List<HabitEntity>, apiHabits: List<HabitEntity>): List<HabitEntity> {
-        val oldLocalMap = mutableMapOf<String, HabitEntity>()
-        val newLocalEntities = mutableListOf<HabitEntity>()
+    private suspend fun processLocalUpdates() {
+        val habitsToUpdate = habitDao.getHabitsByStatus(HabitStatus.UPDATE)
+        if (habitsToUpdate.isEmpty()) return
+        Log.d("Sync", "Processing ${habitsToUpdate.size} local updates...")
 
-        for (localHabit in localHabits) {
-            val apiId = localHabit.apiId
-            
-            if (apiId != null) {
-                oldLocalMap[apiId] = localHabit
-            } else {
-                if (!localHabit.isDeleted) {
-                    newLocalEntities.add(localHabit)
-                }
+        for (localHabit in habitsToUpdate) {
+            if (localHabit.apiId == null) {
+                Log.w("Sync", "Skipping update for habit '${localHabit.title}' as it has no apiId. Attempting to treat as new.")
+                continue
             }
-        }
-        
-        val joinedHabits = mutableListOf<HabitEntity>()
+            try {
+                val requestDto = HabitMapper.INSTANCE.entityToDto(localHabit) // apiId будет в DTO
+                val response = habitApiService.putHabit(requestDto)
 
-        for (apiHabit in apiHabits) {
-            if (oldLocalMap.containsKey(apiHabit.id)) {
-                val localHabit = oldLocalMap[apiHabit.id]
-                
-                if (localHabit != null) {
-                    if (!localHabit.isDeleted) {
-                        joinedHabits.remove(apiHabit)
-                        joinedHabits.add(localHabit)
+
+                if (response.isSuccessful) {
+                    val serverResponseDto = response.body()
+                    val updatedEntity = if (serverResponseDto != null) {
+                        localHabit.copy(apiId = serverResponseDto.uid, habitStatus = HabitStatus.SYNCED)
                     } else {
-                        joinedHabits.remove(apiHabit)
+                        localHabit.copy(habitStatus = HabitStatus.SYNCED)
                     }
+
+                    habitDao.updateHabit(updatedEntity)
+                    Log.i("Sync", "Successfully updated habit on server: ${updatedEntity.title}")
+                } else {
+                    Log.e("Sync", "Failed to update habit '${localHabit.title}' on server. Code: ${response.code()}. Message: ${response.message()}")
+                    // Привычка остается с HabitStatus.UPDATE и isSynced = false
                 }
-            } else {
-                joinedHabits.add(apiHabit)
-            }
-        }
-        
-        joinedHabits.addAll(newLocalEntities)
-
-        return joinedHabits
-    }
-
-    private suspend fun insertHabitsForApi(habits: List<HabitEntity>) {
-        for (habit in habits) {
-            var isSuccessful = false
-            var repeatCount = 0
-
-            while (!isSuccessful && repeatCount < MAX_REPEAT_COUNT) {
-                repeatCount++
-                try {
-                    val response = habitApiService.putHabit(HabitMapper.INSTANCE.entityToDto(habit))
-                    if (response.isSuccessful) {
-                        val newId = response.body()!!.uid
-                        habitDao.deleteItem(habit)
-                        habitDao.insertItem(habit.copy(
-                            id = newId,
-                            apiId = newId
-                        ))
-                        isSuccessful = true
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-                if (!isSuccessful)
-                    delay(REPEAT_DELAY)
-            }
-            
-            if (!isSuccessful) {
-                habitDao.insertItem(habit.copy())
+            } catch (e: Exception) {
+                Log.e("Sync", "Exception updating habit '${localHabit.title}' on server: ${e.message}", e)
             }
         }
     }
 
-    private suspend fun deleteHabitsForApi(habits: List<HabitEntity>) {
-        for (habit in habits) {
-            var isSuccessful = false
-            var repeatCount = 0
+    private suspend fun processLocalDeletions() {
+        val habitsToDelete = habitDao.getHabitsByStatus(HabitStatus.DELETE)
+        if (habitsToDelete.isEmpty()) return
+        Log.d("Sync", "Processing ${habitsToDelete.size} local deletions...")
 
-            while (!isSuccessful && repeatCount < MAX_REPEAT_COUNT) {
-                repeatCount++
-                try {
-                    val response = habitApiService.deleteHabit(HabitRequestUID(habit.id))
-                    if (response.isSuccessful) {
-                        habitDao.deleteItem(habit)
-                        isSuccessful = true
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                if (!isSuccessful)
-                    delay(REPEAT_DELAY)
+        for (localHabit in habitsToDelete) {
+            if (localHabit.apiId == null) {
+                Log.i("Sync", "Deleting local-only habit (never synced): ${localHabit.title}")
+                habitDao.deleteHabit(localHabit)
+                continue
             }
+            try {
+                val response = habitApiService.deleteHabit(HabitRequestUID(localHabit.apiId))
+
+                if (response.isSuccessful) {
+                    habitDao.deleteHabit(localHabit)
+                    Log.i("Sync", "Successfully deleted habit from server and local: ${localHabit.title}")
+                } else {
+                    Log.e("Sync", "Failed to delete habit '${localHabit.title}' from server. Code: ${response.code()}. Message: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                Log.e("Sync", "Exception deleting habit '${localHabit.title}' from server: ${e.message}", e)
+            }
+        }
+    }
+
+    private suspend fun fetchAndMergeServerData() {
+        Log.d("Sync", "Fetching and merging server data...")
+        try {
+            val serverResponse = habitApiService.getHabits()
+            if (!serverResponse.isSuccessful || serverResponse.body() == null) {
+                Log.e("Sync", "Failed to fetch habits from server. Code: ${serverResponse.code()}. Message: ${serverResponse.message()}")
+                return
+            }
+
+            val serverHabitDtos = serverResponse.body()!!
+            Log.i("Sync", "Fetched ${serverHabitDtos.size} habits from server.")
+
+
+            val localHabits = habitDao.getListAllHabits()
+
+            val localHabitsMapByApiId = localHabits
+                .filter { it.apiId != null }
+                .associateBy { it.apiId }
+
+            val serverApiIds = serverHabitDtos.mapNotNull { it.uid }.toSet()
+
+            for (serverDto in serverHabitDtos) {
+                if (serverDto.uid == null) {
+                    Log.w("Sync", "Server DTO with null UID found: ${serverDto.title}")
+                    continue
+                }
+
+                Log.i("Sync", "apiid ${serverDto.uid} server habit.")
+
+                val existingLocalHabit = localHabitsMapByApiId[serverDto.uid]
+
+                if (existingLocalHabit == null) {
+                    Log.i("Sync", "New habit from server: ${serverDto.title}. Adding locally.")
+                    val newEntity = HabitMapper.INSTANCE.dtoToEntity(serverDto)
+                    habitDao.insertHabit(newEntity)
+                } else {
+                    if (existingLocalHabit.habitStatus == HabitStatus.SYNCED) {
+                        val serverMappedEntity = HabitMapper.INSTANCE.dtoToEntity(serverDto, existingLocalHabit.id)
+                        habitDao.updateHabit(serverMappedEntity)
+                    } else {
+                        Log.i("Sync", "Local habit '${existingLocalHabit.title}' has pending changes (${existingLocalHabit.habitStatus}). Skipping update from server for now.")
+                    }
+                }
+            }
+
+            for (localHabit in localHabits) {
+                if (localHabit.apiId != null && !serverApiIds.contains(localHabit.apiId) &&
+                    localHabit.habitStatus != HabitStatus.ADD && localHabit.habitStatus != HabitStatus.DELETE) {
+                    Log.i("Sync", "Deleting local habit '${localHabit.title}' as it's no longer on server.")
+                    habitDao.deleteHabit(localHabit)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Sync", "Exception during fetchAndMergeServerData: ${e.message}", e)
         }
     }
 }

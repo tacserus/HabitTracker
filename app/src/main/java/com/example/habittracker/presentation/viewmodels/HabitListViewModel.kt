@@ -43,7 +43,7 @@ class HabitListViewModel(
         viewModelScope.launch {
             syncComplete.value = false
             try {
-                habitRepository.sync()
+                habitRepository.syncHabits()
                 syncComplete.value = true
             } finally {
                 syncComplete.value = true
@@ -56,7 +56,7 @@ class HabitListViewModel(
             val habit = habitRepository.getHabitById(id)
 
             if (habit != null) {
-                habitRepository.deleteItem(habit)
+                habitRepository.deleteHabit(habit)
             }
         }
     }

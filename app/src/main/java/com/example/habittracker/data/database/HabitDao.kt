@@ -7,28 +7,32 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.models.HabitEntity
 
 @Dao
 interface HabitDao {
     @Query("SELECT * FROM habits WHERE id = :id")
-    suspend fun getItemById(id: String): HabitEntity?
+    suspend fun getHabitById(id: String): HabitEntity?
 
-    @Query("SELECT * FROM habits WHERE isDeleted = 0")
-    fun getAllItems(): LiveData<List<HabitEntity>>
+    @Query("SELECT * FROM habits")
+    fun getAllHabits(): LiveData<List<HabitEntity>>
 
-    @Query("SELECT * FROM habits WHERE isDeleted = 1")
-    suspend fun getDeletedHabits(): List<HabitEntity>
+    @Query("SELECT * FROM habits")
+    fun getListAllHabits(): List<HabitEntity>
+
+    @Query("SELECT * FROM habits WHERE habitStatus = :status")
+    suspend fun getHabitsByStatus(status: HabitStatus): List<HabitEntity>
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateItem(nameEntity: HabitEntity)
+    suspend fun updateHabit(nameEntity: HabitEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertItem(nameEntity: HabitEntity)
+    suspend fun insertHabit(nameEntity: HabitEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHabits(habits: List<HabitEntity>)
 
     @Delete
-    fun deleteItem(nameEntity: HabitEntity)
+    fun deleteHabit(nameEntity: HabitEntity)
 }

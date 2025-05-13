@@ -6,12 +6,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habittracker.data.database.HabitRepository
+import com.example.habittracker.domain.HabitMapper
+import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.domain.enums.Priority
 import com.example.habittracker.domain.models.AddHabitEvent
 import com.example.habittracker.domain.models.AddHabitState
 import com.example.habittracker.domain.models.HabitEntity
-import com.example.habittracker.domain.HabitMapper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -47,7 +48,8 @@ class AddHabitViewModel(
                     priority = application.getString(Priority.Lite.id),
                     type = application.getString(HabitType.GoodHabit.id),
                     count = "",
-                    frequency = ""
+                    frequency = "",
+                    habitStatus = HabitStatus.ADD
                 )
             }
         }
