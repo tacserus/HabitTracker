@@ -1,11 +1,13 @@
 package com.example.habittracker.data.api
 
+import com.example.habittracker.domain.models.HabitDoneMark
 import com.example.habittracker.domain.models.HabitDto
 import com.example.habittracker.domain.models.HabitRequestUID
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.HTTP
+import retrofit2.http.POST
 import retrofit2.http.PUT
 
 interface HabitApiService {
@@ -22,8 +24,8 @@ interface HabitApiService {
         @Body uid: HabitRequestUID
     ): Response<Unit>
 
-//    @POST("habit_done")
-//    suspend fun addDoneMark(
-//        @Body habitDoneMark: HabitDoneMark
-//    ): Response<Unit>
+    @POST("habit_done")
+    suspend fun addDoneMark(
+        @Body habitDoneMark: HabitDoneMark
+    ): Response<Unit>
 }

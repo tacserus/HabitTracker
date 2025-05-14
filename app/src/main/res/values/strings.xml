@@ -8,6 +8,7 @@
     <string name="habit_bad_type">Плохая привычка</string>
     <string name="habit_quantity">Количество</string>
     <string name="habit_frequency">Периодичность</string>
+    <string name="habit_complete_count">Раз выполнено</string>
 
     <string name="habit_edit_name">Введите название</string>
     <string name="habit_edit_description">Введите описание</string>
@@ -49,4 +50,9 @@
 
     <string name="complete">Выполнить</string>
     <string name="cross">Крестик</string>
+
+    <string name="good_low_message">Стоит выполнить еще %1$d раз</string>
+    <string name="good_high_message">You are breathtaking!</string>
+    <string name="bad_low_message">Можно выполнить еще %1$d раз</string>
+    <string name="bad_high_message">Хватит это делать!</string>
 </resources>

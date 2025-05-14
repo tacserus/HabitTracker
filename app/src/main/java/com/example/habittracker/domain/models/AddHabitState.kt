@@ -11,5 +11,7 @@ data class AddHabitState (
     val type: String,
     val count: String,
     val frequency: String,
-    val habitStatus: HabitStatus
+    val habitStatus: HabitStatus,
+    val doneMarks: List<Long>,
+    val isDoneMarksSynced: Boolean
 )

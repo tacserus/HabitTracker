@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +15,8 @@ import com.example.habittracker.R
 import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentHabitsBinding
 import com.example.habittracker.domain.enums.HabitType
+import com.example.habittracker.domain.enums.ToastMessage
+import com.example.habittracker.domain.models.HabitListEvent
 import com.example.habittracker.presentation.adapters.HabitDecoration
 import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
@@ -73,6 +76,11 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        lifecycleScope.launch {
+            habitListViewModel.events.collect { event ->
+                showToast(event)
+            }
+        }
 
         when (habitType) {
             HabitType.GoodHabit-> {
@@ -128,7 +136,7 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
     }
 
     private fun complete(id: String) {
-        habitListViewModel.saveCompletedDate(id, habitType, requireContext())
+        habitListViewModel.saveDoneMark(id)
     }
 
     private fun delete(id: String) {
@@ -141,5 +149,36 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
         }
 
         findNavController().navigate(R.id.addHabitFragment, bundle)
+    }
+
+    private fun showToast(habitListEvent: HabitListEvent) {
+        when (habitListEvent) {
+            is HabitListEvent.ShowLowToast -> {
+                val message = when (habitType) {
+                    HabitType.GoodHabit -> {
+                        getString(ToastMessage.GoodLow.id, habitListEvent.difference)
+                    }
+                    HabitType.BadHabit -> {
+                        getString(ToastMessage.BadLow.id, habitListEvent.difference)
+                    }
+                }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+            HabitListEvent.ShowHighToast -> {
+                val message = when (habitType) {
+                    HabitType.GoodHabit -> {
+                        requireActivity().getString(ToastMessage.GoodHigh.id)
+                    }
+                    HabitType.BadHabit -> {
+                        requireActivity().getString(ToastMessage.BadHigh.id)
+                    }
+                }
+                Toast.makeText(
+                    context,
+                    message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 }

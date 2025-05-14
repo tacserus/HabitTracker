@@ -1,9 +1,11 @@
-package com.example.habittracker.data.database
+package com.example.habittracker.data
 
 import android.util.Log
 import com.example.habittracker.data.api.HabitApiService
+import com.example.habittracker.data.database.HabitDao
 import com.example.habittracker.domain.HabitMapper
 import com.example.habittracker.domain.enums.HabitStatus
+import com.example.habittracker.domain.models.HabitDoneMark
 import com.example.habittracker.domain.models.HabitEntity
 import com.example.habittracker.domain.models.HabitRequestUID
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +24,10 @@ class HabitRepository(
             .map { habits -> habits.filter { it.habitStatus != HabitStatus.DELETE } }
     }
 
+    suspend fun getListAllHabits(): List<HabitEntity> {
+        return habitDao.getListAllHabits()
+    }
+
     suspend fun updateHabit(habit: HabitEntity) {
         habitDao.updateHabit(habit)
     }
@@ -34,12 +40,23 @@ class HabitRepository(
         habitDao.insertHabit(habit.copy(habitStatus = HabitStatus.DELETE))
     }
 
+    suspend fun updateDoneMark(id: String) {
+        val updatedHabit = habitDao.getHabitById(id)
+
+        if (updatedHabit != null) {
+            val date = System.currentTimeMillis()
+            val newDoneMarks = updatedHabit.doneMarks.plus(date)
+            updateHabit(updatedHabit.copy(doneMarks = newDoneMarks, isDoneMarksSynced = false))
+        }
+    }
+
     suspend fun syncHabits() {
         Log.d("Sync", "Starting habit synchronization...")
 
         processLocalCreations()
         processLocalUpdates()
         processLocalDeletions()
+        processDoneMarks()
 
         fetchAndMergeServerData()
 
@@ -84,7 +101,7 @@ class HabitRepository(
                 continue
             }
             try {
-                val requestDto = HabitMapper.INSTANCE.entityToDto(localHabit) // apiId будет в DTO
+                val requestDto = HabitMapper.INSTANCE.entityToDto(localHabit)
                 val response = habitApiService.putHabit(requestDto)
 
 
@@ -100,7 +117,6 @@ class HabitRepository(
                     Log.i("Sync", "Successfully updated habit on server: ${updatedEntity.title}")
                 } else {
                     Log.e("Sync", "Failed to update habit '${localHabit.title}' on server. Code: ${response.code()}. Message: ${response.message()}")
-                    // Привычка остается с HabitStatus.UPDATE и isSynced = false
                 }
             } catch (e: Exception) {
                 Log.e("Sync", "Exception updating habit '${localHabit.title}' on server: ${e.message}", e)
@@ -130,6 +146,42 @@ class HabitRepository(
                 }
             } catch (e: Exception) {
                 Log.e("Sync", "Exception deleting habit '${localHabit.title}' from server: ${e.message}", e)
+            }
+        }
+    }
+
+    private suspend fun processDoneMarks() {
+        val habitsToSyncDoneMarks = habitDao.getHabitsToSyncDoneMarks()
+        if (habitsToSyncDoneMarks.isEmpty()) return
+        Log.d("Sync", "Processing ${habitsToSyncDoneMarks.size} to sync done marks...")
+
+        for (habitToSyncDoneMarks in habitsToSyncDoneMarks) {
+            if (habitToSyncDoneMarks.apiId == null) {
+                Log.i("Sync", "Done Marks for habitLocalId ${habitToSyncDoneMarks.id} are not synced")
+                continue
+            }
+            var isSuccessful = true
+            for (doneMark in habitToSyncDoneMarks.doneMarks) {
+                try {
+                    Log.i("Sync", "${(doneMark / 1000).toInt()} ${habitToSyncDoneMarks.apiId}")
+                    val response = habitApiService.addDoneMark(HabitDoneMark(
+                        doneMark / 1000,
+                        habitToSyncDoneMarks.apiId
+                    ))
+
+                    if (response.isSuccessful) {
+                        Log.i("Sync", "Done Marks $doneMark for habitApiId ${habitToSyncDoneMarks.apiId} are successful synced")
+                    } else {
+                        isSuccessful = false
+                        Log.e("Sync", "Done Mark $doneMark for habitApiId ${habitToSyncDoneMarks.apiId} are not synced. Code: ${response.code()}. Message: ${response.message()}")
+                    }
+                } catch (e: Exception) {
+                    isSuccessful = false
+                    Log.e("Sync", "Exception sync habit don marks for habitApiId ${habitToSyncDoneMarks.apiId} from server: ${e.message}", e)
+                }
+            }
+            if (isSuccessful) {
+                habitDao.insertHabit(habitToSyncDoneMarks.copy(isDoneMarksSynced = true))
             }
         }
     }

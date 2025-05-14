@@ -14,51 +14,55 @@ class HabitMapper {
         val INSTANCE: HabitMapper = HabitMapper()
     }
 
-    fun dtoToEntity(dto: HabitDto, existingLocalId: String? = null): HabitEntity {
+    fun dtoToEntity(habitDto: HabitDto, existingLocalId: String? = null): HabitEntity {
         val localId = existingLocalId ?: UUID.randomUUID().toString()
         return HabitEntity(
             id = localId,
-            apiId = dto.uid,
-            title = dto.title,
-            description = dto.description,
-            priority = Priority.entries.toTypedArray().getOrElse(dto.priority) { Priority.Lite },
-            type = HabitType.entries.toTypedArray().getOrElse(dto.type) { HabitType.GoodHabit },
-            count = dto.count.toString(),
-            frequency = dto.frequency.toString(),
-            color = dto.color,
-            date = dto.date.toLong() * 1000,
-            habitStatus = HabitStatus.SYNCED
+            apiId = habitDto.uid,
+            title = habitDto.title,
+            description = habitDto.description,
+            priority = Priority.entries.toTypedArray().getOrElse(habitDto.priority) { Priority.Lite },
+            type = HabitType.entries.toTypedArray().getOrElse(habitDto.type) { HabitType.GoodHabit },
+            count = habitDto.count.toString(),
+            frequency = habitDto.frequency.toString(),
+            color = habitDto.color,
+            date = habitDto.date.toLong() * 1000,
+            habitStatus = HabitStatus.SYNCED,
+            doneMarks = habitDto.done_dates.map { it * 1000 },
+            isDoneMarksSynced = true
         )
     }
 
-    fun entityToDto(entity: HabitEntity): HabitDto {
+    fun entityToDto(habitEntity: HabitEntity): HabitDto {
         return HabitDto(
-            uid = entity.apiId,
-            title = entity.title,
-            description = entity.description,
-            priority = entity.priority.ordinal,
-            type = entity.type.ordinal,
-            count = entity.count.toIntOrNull() ?: 0,
-            frequency = entity.frequency.toIntOrNull() ?: 0,
-            color = entity.color,
-            date = (entity.date / 1000).toInt(),
-            done_dates = listOf()
+            uid = habitEntity.apiId,
+            title = habitEntity.title,
+            description = habitEntity.description,
+            priority = habitEntity.priority.ordinal,
+            type = habitEntity.type.ordinal,
+            count = habitEntity.count.toIntOrNull() ?: 0,
+            frequency = habitEntity.frequency.toIntOrNull() ?: 0,
+            color = habitEntity.color,
+            date = (habitEntity.date / 1000).toInt(),
+            done_dates = habitEntity.doneMarks.map { it / 1000 }
         )
     }
 
-    fun stateToEntity(state: AddHabitState, priority: Priority, type: HabitType): HabitEntity {
+    fun stateToEntity(addHabitState: AddHabitState, priority: Priority, type: HabitType): HabitEntity {
         return HabitEntity(
-            id = state.id,
-            apiId = state.apiId,
-            title = state.title,
-            description = state.description,
+            id = addHabitState.id,
+            apiId = addHabitState.apiId,
+            title = addHabitState.title,
+            description = addHabitState.description,
             priority = priority,
             type = type,
-            count = state.count,
-            frequency = state.frequency,
+            count = addHabitState.count,
+            frequency = addHabitState.frequency,
             color = 0,
             date = System.currentTimeMillis(),
-            habitStatus = state.habitStatus
+            habitStatus = addHabitState.habitStatus,
+            doneMarks = addHabitState.doneMarks.toList(),
+            isDoneMarksSynced = addHabitState.isDoneMarksSynced
         )
     }
 
@@ -72,7 +76,9 @@ class HabitMapper {
             type = defaultType,
             count = habitEntity.count,
             frequency = habitEntity.frequency,
-            habitStatus = if (habitEntity.apiId == null) HabitStatus.ADD else HabitStatus.UPDATE
+            habitStatus = if (habitEntity.apiId == null) HabitStatus.ADD else HabitStatus.UPDATE,
+            doneMarks = habitEntity.doneMarks.toList(),
+            isDoneMarksSynced = habitEntity.isDoneMarksSynced
         )
     }
 }

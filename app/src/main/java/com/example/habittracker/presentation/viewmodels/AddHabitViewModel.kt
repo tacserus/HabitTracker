@@ -2,7 +2,7 @@ package com.example.habittracker.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habittracker.data.database.HabitRepository
+import com.example.habittracker.data.HabitRepository
 import com.example.habittracker.domain.HabitMapper
 import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.enums.HabitType
@@ -46,7 +46,9 @@ class AddHabitViewModel(
                     type = defaultType,
                     count = "",
                     frequency = "",
-                    habitStatus = HabitStatus.ADD
+                    habitStatus = HabitStatus.ADD,
+                    doneMarks = listOf(),
+                    isDoneMarksSynced = false
                 )
             }
 

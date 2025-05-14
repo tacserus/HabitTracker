@@ -19,10 +19,13 @@ interface HabitDao {
     fun getAllHabits(): Flow<List<HabitEntity>>
 
     @Query("SELECT * FROM habits")
-    fun getListAllHabits(): List<HabitEntity>
+    suspend fun getListAllHabits(): List<HabitEntity>
 
     @Query("SELECT * FROM habits WHERE habitStatus = :status")
     suspend fun getHabitsByStatus(status: HabitStatus): List<HabitEntity>
+
+    @Query("SELECT * FROM habits WHERE isDoneMarksSynced = 0")
+    suspend fun getHabitsToSyncDoneMarks(): List<HabitEntity>
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateHabit(nameEntity: HabitEntity)

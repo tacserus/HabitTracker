@@ -19,5 +19,7 @@ data class HabitEntity (
     val frequency: String,
     val color: Int,
     val date: Long,
-    val habitStatus: HabitStatus
+    val habitStatus: HabitStatus,
+    val doneMarks: List<Long>,
+    val isDoneMarksSynced: Boolean
 ) : Serializable

@@ -5,7 +5,7 @@ import androidx.room.Room
 import com.example.habittracker.R
 import com.example.habittracker.data.api.HabitApiService
 import com.example.habittracker.data.database.HabitDao
-import com.example.habittracker.data.database.HabitRepository
+import com.example.habittracker.data.HabitRepository
 import com.example.habittracker.data.database.HabitsDb
 import dagger.Module
 import dagger.Provides

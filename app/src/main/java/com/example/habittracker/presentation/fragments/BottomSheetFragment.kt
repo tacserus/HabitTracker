@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
 import androidx.fragment.app.activityViewModels
 import com.example.habittracker.R
 import com.example.habittracker.dagger.App
@@ -42,7 +43,7 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
         }
 
         binding.resetButton.setOnClickListener {
-            //habitListViewModel.reset()
+            habitListViewModel.resetOptions()
             dismiss()
         }
 
@@ -53,33 +54,27 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
         super.onViewCreated(view, savedInstanceState)
 
         binding.sortRadioGroup.check(binding.sortTitle.id)
-        //fillUI()
-
-//        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-//            habitListViewModel.currentItems.collect {
-//                //fillUI()
-//            }
-//        }
+        fillUI()
     }
 
-//    private fun fillUI() {
-//        val filters = habitListViewModel.getCurrentFilters()
-//
-//        binding.frequencyEditText.setText(filters[FilterType.FREQUENCY] ?: "")
-//        binding.quantityEditText.setText(filters[FilterType.QUANTITY] ?: "")
-//
-//        val sortingType = habitListViewModel.getCurrentSortingType()
-//
-//        for (i in 0 until binding.sortRadioGroup.childCount) {
-//            val radioButton = binding.sortRadioGroup.getChildAt(i) as RadioButton
-//            if (radioButton.text == requireContext().getString(sortingType.id)) {
-//                binding.sortRadioGroup.check(radioButton.id)
-//                break
-//            }
-//        }
-//
-//        binding.searchEditText.setText(habitListViewModel.getCurrentSearchingWord())
-//    }
+    private fun fillUI() {
+        val filters = habitListViewModel.getCurrentFilters()
+
+        binding.frequencyEditText.setText(filters[FilterType.FREQUENCY] ?: "")
+        binding.quantityEditText.setText(filters[FilterType.QUANTITY] ?: "")
+
+        val sortingType = habitListViewModel.getCurrentSortingType()
+
+        for (i in 0 until binding.sortRadioGroup.childCount) {
+            val radioButton = binding.sortRadioGroup.getChildAt(i) as RadioButton
+            if (radioButton.text == requireContext().getString(sortingType.id)) {
+                binding.sortRadioGroup.check(radioButton.id)
+                break
+            }
+        }
+
+        binding.searchEditText.setText(habitListViewModel.getCurrentSearchingWord())
+    }
 
     private fun apply() {
         val filters: MutableMap<FilterType, String> = mutableMapOf()
@@ -99,7 +94,7 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
 
         val selectedSortingType = getSelectedSortingType()
 
-       // habitListViewModel.applyOptions(selectedSortingType, filters, searchingWord)
+       habitListViewModel.applyOptions(selectedSortingType, filters, searchingWord)
     }
 
     private fun getSelectedSortingType(): SortingType {
