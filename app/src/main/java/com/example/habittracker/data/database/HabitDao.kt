@@ -1,28 +1,41 @@
 package com.example.habittracker.data.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.habittracker.domain.models.Habit
+import com.example.habittracker.domain.enums.HabitStatus
+import com.example.habittracker.domain.models.HabitEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HabitDao {
     @Query("SELECT * FROM habits WHERE id = :id")
-    fun getItemById(id: String): Habit?
+    suspend fun getHabitById(id: String): HabitEntity?
 
-    @Query("SELECT * " + "FROM habits")
-    fun getAllItems(): LiveData<List<Habit>>
+    @Query("SELECT * FROM habits")
+    fun getAllHabits(): Flow<List<HabitEntity>>
 
-    @Update
-    suspend fun updateItem(nameEntity: Habit)
+    @Query("SELECT * FROM habits")
+    suspend fun getListAllHabits(): List<HabitEntity>
+
+    @Query("SELECT * FROM habits WHERE habitStatus = :status")
+    suspend fun getHabitsByStatus(status: HabitStatus): List<HabitEntity>
+
+    @Query("SELECT * FROM habits WHERE isDoneMarksSynced = 0")
+    suspend fun getHabitsToSyncDoneMarks(): List<HabitEntity>
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateHabit(nameEntity: HabitEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertItem(nameEntity: Habit)
+    suspend fun insertHabit(nameEntity: HabitEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHabits(habits: List<HabitEntity>)
 
     @Delete
-    fun deleteItem(nameEntity: Habit)
+    fun deleteHabit(nameEntity: HabitEntity)
 }

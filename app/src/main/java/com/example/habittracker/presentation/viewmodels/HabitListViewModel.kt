@@ -1,126 +1,101 @@
 package com.example.habittracker.presentation.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.habittracker.data.database.HabitsRepository
+import androidx.lifecycle.viewModelScope
+import com.example.habittracker.data.HabitRepository
 import com.example.habittracker.domain.enums.FilterType
 import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.domain.enums.SortingType
-import com.example.habittracker.domain.models.Habit
+import com.example.habittracker.domain.models.HabitEntity
+import com.example.habittracker.domain.models.HabitListEvent
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 class HabitListViewModel(
-    private val habitsRepository: HabitsRepository,
-    private val application: Application
+    private val habitRepository: HabitRepository
 ) : ViewModel() {
-    private val currentFilters: MutableMap<FilterType, String> = mutableMapOf()
+    private var currentFilters: MutableMap<FilterType, String> = mutableMapOf()
     private var currentSortingType: SortingType = SortingType.DEFAULT
     private var currentSearchingWord: String = ""
 
-    private var _allHabits: List<Habit> = mutableListOf()
-    private val _currentItems = MutableLiveData<List<Habit>>(mutableListOf())
-    private val _goodHabits = MutableLiveData<List<Habit>>(mutableListOf())
-    private val _badHabits = MutableLiveData<List<Habit>>(mutableListOf())
+    private val _currentItems = MutableStateFlow<List<HabitEntity>>(emptyList())
 
-    val goodHabits: LiveData<List<Habit>> get() = _goodHabits
-    val badHabits: LiveData<List<Habit>> get() = _badHabits
+    private val _goodHabits = MutableStateFlow<List<HabitEntity>>(emptyList())
+    val goodHabits: StateFlow<List<HabitEntity>> get() = _goodHabits
+
+    private val _badHabits = MutableStateFlow<List<HabitEntity>>(emptyList())
+    val badHabits: StateFlow<List<HabitEntity>> get() = _badHabits
+
+    val syncComplete = MutableStateFlow(false)
+
+    private val _events = MutableSharedFlow<HabitListEvent>()
+    val events = _events.asSharedFlow()
 
     init {
-        habitsRepository.getAllHabits().observeForever { habits ->
-            _allHabits = habits
-            checkOptions()
+        getAllHabits()
+    }
+
+    private fun getAllHabits() {
+        viewModelScope.launch {
+            habitRepository.getAllHabits().collect { habits ->
+                checkOptions(habits)
+            }
         }
     }
 
-    fun deleteHabit(habit: Habit) {
-        habitsRepository.deleteHabit(habit)
-    }
-
-    private fun applyFilters(filters: MutableMap<FilterType, String>) {
-        var filteredItems = _currentItems.value ?: listOf()
-
-        for (currentFilterType in filters.keys) {
-            filteredItems = applyFilter(
-                filteredItems,
-                currentFilterType,
-                filters[currentFilterType] ?: ""
-            )
-        }
-
-        _currentItems.value = filteredItems
-    }
-
-    private fun applyFilter(filteredHabits: List<Habit>, filterType: FilterType, value: String): List<Habit> {
-        val newFilteredItems = when (filterType) {
-            FilterType.QUANTITY -> filteredHabits.filter { it.quantity == value }
-            FilterType.FREQUENCY -> filteredHabits.filter { it.frequency == value }
-        }
-
-        currentFilters[filterType] = value
-
-        return newFilteredItems
-    }
-
-    private fun sortByField(sortingField: SortingType) {
-        when (sortingField) {
-            SortingType.QUANTITY -> _currentItems.value = _allHabits.sortedBy { it.quantity }
-            SortingType.FREQUENCY -> _currentItems.value = _allHabits.sortedBy { it.frequency }
-            else -> _currentItems.value = _allHabits.sortedBy { it.title }
-        }
-
-        currentSortingType = sortingField
-    }
-
-    private fun findByWord(word: String) {
-        currentSearchingWord = word
-        _currentItems.value = _currentItems.value?.filter { it.title.startsWith(word) || it.title.endsWith(word) } ?: listOf()
-    }
-
-    private fun checkOptions() {
-        sortByField(currentSortingType)
-        applyFilters(currentFilters)
+    private fun checkOptions(habits: List<HabitEntity>) {
+        sortByField(habits)
+        applyFilters()
 
         if (currentSearchingWord.isNotBlank()) {
             findByWord(currentSearchingWord)
         }
 
-        _goodHabits.value = _currentItems.value?.filter {
-            it.type == application.getString(HabitType.GoodHabit.id)
+        updateHabits()
+    }
+
+    private fun sortByField(habits: List<HabitEntity>) {
+        val sortedItems = when (currentSortingType) {
+            SortingType.QUANTITY -> habits.sortedBy { it.count.toInt() }
+            SortingType.FREQUENCY -> habits.sortedBy { it.frequency.toInt() }
+            else -> habits.sortedBy { it.title }
         }
-        _badHabits.value = _currentItems.value?.filter {
-            it.type == application.getString(HabitType.BadHabit.id)
+        _currentItems.value = sortedItems
+    }
+
+    private fun applyFilters() {
+        val filteredItems = currentFilters.entries.fold(_currentItems.value) { currentList, filterEntry ->
+            applyFilter(currentList, filterEntry.key, filterEntry.value)
+        }
+        _currentItems.value = filteredItems
+    }
+
+    private fun applyFilter(filteredHabits: List<HabitEntity>, filterType: FilterType, value: String): List<HabitEntity>  {
+        return when (filterType) {
+            FilterType.QUANTITY -> filteredHabits.filter { it.count == value }
+            FilterType.FREQUENCY -> filteredHabits.filter { it.frequency == value }
+        }.also { currentFilters[filterType] = value }
+    }
+
+    private fun findByWord(word: String) {
+        val filteredByWord = _currentItems.value.filter { it.title.startsWith(word) || it.title.endsWith(word) }
+        _currentItems.value = filteredByWord
+    }
+
+    private fun updateHabits() {
+        _goodHabits.value = _currentItems.value.filter {
+            it.type == HabitType.GoodHabit
+        }
+        _badHabits.value = _currentItems.value.filter {
+            it.type == HabitType.BadHabit
         }
     }
 
-    fun applyOptions(
-        sortingType: SortingType,
-        filters: MutableMap<FilterType, String>,
-        searchingWord: String
-    ) {
-        sortByField(sortingType)
-        applyFilters(filters)
-
-        if (searchingWord.isNotBlank()) {
-            findByWord(searchingWord)
-        }
-
-        _goodHabits.value = _currentItems.value?.filter {
-            it.type == application.getString(HabitType.GoodHabit.id)
-        }
-        _badHabits.value = _currentItems.value?.filter {
-            it.type == application.getString(HabitType.BadHabit.id)
-        }
-    }
-
-    fun reset() {
-        currentFilters.clear()
-        currentSortingType = SortingType.DEFAULT
-        sortByField(currentSortingType)
-        currentSearchingWord = ""
-    }
-
-    fun getCurrentFilters(): Map<FilterType, String> {
+    fun getCurrentFilters(): MutableMap<FilterType, String> {
         return currentFilters
     }
 
@@ -130,5 +105,68 @@ class HabitListViewModel(
 
     fun getCurrentSearchingWord(): String {
         return currentSearchingWord
+    }
+
+    fun sync() {
+        viewModelScope.launch {
+            syncComplete.value = false
+            try {
+                habitRepository.syncHabits()
+                syncComplete.value = true
+            } finally {
+                syncComplete.value = true
+            }
+        }
+    }
+
+    fun deleteHabit(id: String) {
+        viewModelScope.launch {
+            habitRepository.getHabitById(id)?.let { habit ->
+                habitRepository.deleteHabit(habit)
+            }
+        }
+    }
+
+    fun saveDoneMark(id: String) {
+        viewModelScope.launch {
+            habitRepository.updateDoneMark(id)
+
+            val habit = habitRepository.getHabitById(id)
+
+            if (habit != null) {
+                val difference = habit.doneMarks.size - habit.count.toInt()
+
+                if (difference >= 0) {
+                    _events.emit(HabitListEvent.ShowHighToast)
+                } else {
+                    _events.emit(HabitListEvent.ShowLowToast(difference.absoluteValue))
+                }
+            }
+
+        }
+    }
+
+    fun applyOptions(
+        selectedSortingType: SortingType,
+        filters: MutableMap<FilterType, String>,
+        searchingWord: String
+    ) {
+        currentSortingType = selectedSortingType
+        currentFilters = filters
+        currentSearchingWord = searchingWord
+
+        viewModelScope.launch {
+            checkOptions(habitRepository.getListAllHabits())
+        }
+    }
+
+    fun resetOptions() {
+        currentSortingType = SortingType.DEFAULT
+        currentFilters = mutableMapOf()
+        currentSearchingWord = ""
+
+        viewModelScope.launch {
+            checkOptions(habitRepository.getListAllHabits())
+        }
     }
 }

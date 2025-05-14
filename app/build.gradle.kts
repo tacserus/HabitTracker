@@ -28,6 +28,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "API_TOKEN", "${property("API_TOKEN")}")
+        }
+        debug {
+            buildConfigField("String", "API_TOKEN", "${property("API_TOKEN")}")
         }
     }
 
@@ -45,6 +49,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
         compose = true
     }
@@ -90,6 +95,18 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)
 
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+    implementation(libs.mapstruct)
+    kapt(libs.mapstruct.processor.v160)
+    implementation(libs.okhttp)
+
+    implementation(libs.androidx.swiperefreshlayout)
 }

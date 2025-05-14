@@ -1,7 +1,6 @@
 package com.example.habittracker.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.habittracker.R
-import com.example.habittracker.data.database.App
-import com.example.habittracker.data.database.HabitsRepository
+import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentAddHabitBinding
 import com.example.habittracker.domain.enums.HabitType
 import com.example.habittracker.domain.enums.Priority
@@ -22,20 +20,25 @@ import com.example.habittracker.domain.models.AddHabitEvent
 import com.example.habittracker.presentation.viewmodels.AddHabitViewModel
 import com.example.habittracker.presentation.viewmodels.ViewModelFactory
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
     private val TAG = "add_habit_fragment"
     private lateinit var binding: FragmentAddHabitBinding
 
-    private val addHabitViewModel: AddHabitViewModel by viewModels {
-        val id = arguments?.getString("id") ?: ""
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private val addHabitViewModel: AddHabitViewModel by viewModels { viewModelFactory }
 
-        ViewModelFactory(
-            habitsRepository = HabitsRepository(
-                (requireActivity().application as App).database
-            ),
-            application = requireActivity().application,
-            id = id
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        (requireActivity().application as App).appComponent.inject(this)
+
+        addHabitViewModel.initState(
+            arguments?.getString("id") ?: "",
+            requireContext().getString(Priority.Lite.id),
+            requireContext().getString(HabitType.GoodHabit.id)
         )
     }
 
@@ -57,7 +60,6 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
 
         lifecycleScope.launch {
             addHabitViewModel.events.collect { event ->
-                Log.i(TAG, "clicked")
                 when (event) {
                     is AddHabitEvent.NavigateBack -> {
                         findNavController().popBackStack()
@@ -87,7 +89,7 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
         }
 
         binding.editTextQuantity.addTextChangedListener {
-            addHabitViewModel.onQuantityChanged(it.toString())
+            addHabitViewModel.onCountChanged(it.toString())
         }
 
         binding.editTextFrequency.addTextChangedListener {
@@ -98,7 +100,14 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
 
         binding.buttonSave.setOnClickListener {
             if (checkFieldsForSave()) {
-                addHabitViewModel.onSaveClicked()
+
+                val priority = Priority.entries.find {
+                    requireContext().getString(it.id) == addHabitViewModel.stateFlow.value?.priority
+                } ?: Priority.Lite
+                val type = HabitType.entries.find {
+                    requireContext().getString(it.id) == addHabitViewModel.stateFlow.value?.type
+                } ?: HabitType.GoodHabit
+                addHabitViewModel.onSaveClicked(priority, type)
             }
         }
         binding.buttonCancel.setOnClickListener {
