@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.habittracker.R
@@ -17,6 +18,7 @@ import com.example.habittracker.presentation.adapters.HabitDecoration
 import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
 import com.example.habittracker.presentation.viewmodels.ViewModelFactory
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HabitFragment : Fragment(R.layout.fragment_habits) {
@@ -90,12 +92,14 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
         binding.recyclerView.addItemDecoration(HabitDecoration(16))
         binding.recyclerView.adapter = adapter
 
-        when (habitType) {
-            HabitType.GoodHabit -> habitListViewModel.goodHabits.observe(viewLifecycleOwner) {
-                adapter.submit(it)
-            }
-            HabitType.BadHabit -> habitListViewModel.badHabits.observe(viewLifecycleOwner) {
-                adapter.submit(it)
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            when (habitType) {
+                HabitType.GoodHabit -> habitListViewModel.goodHabits.collect { habits ->
+                    adapter.submit(habits)
+                }
+                HabitType.BadHabit -> habitListViewModel.badHabits.collect { habits ->
+                    adapter.submit(habits)
+                }
             }
         }
 
@@ -113,9 +117,11 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             habitListViewModel.sync()
-            habitListViewModel.syncComplete.observe(viewLifecycleOwner) { isComplete ->
-                if (isComplete) {
-                    binding.swipeRefreshLayout.isRefreshing = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                habitListViewModel.syncComplete.collect { isComplete ->
+                    if (isComplete) {
+                        binding.swipeRefreshLayout.isRefreshing = false
+                    }
                 }
             }
         }

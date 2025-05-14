@@ -102,10 +102,10 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
             if (checkFieldsForSave()) {
 
                 val priority = Priority.entries.find {
-                    requireContext().getString(it.id) == addHabitViewModel.stateLiveData.value?.priority
+                    requireContext().getString(it.id) == addHabitViewModel.stateFlow.value?.priority
                 } ?: Priority.Lite
                 val type = HabitType.entries.find {
-                    requireContext().getString(it.id) == addHabitViewModel.stateLiveData.value?.type
+                    requireContext().getString(it.id) == addHabitViewModel.stateFlow.value?.type
                 } ?: HabitType.GoodHabit
                 addHabitViewModel.onSaveClicked(priority, type)
             }

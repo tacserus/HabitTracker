@@ -1,6 +1,5 @@
 package com.example.habittracker.data.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -9,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.models.HabitEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HabitDao {
@@ -16,7 +16,7 @@ interface HabitDao {
     suspend fun getHabitById(id: String): HabitEntity?
 
     @Query("SELECT * FROM habits")
-    fun getAllHabits(): LiveData<List<HabitEntity>>
+    fun getAllHabits(): Flow<List<HabitEntity>>
 
     @Query("SELECT * FROM habits")
     fun getListAllHabits(): List<HabitEntity>

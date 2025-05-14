@@ -1,7 +1,5 @@
 package com.example.habittracker.presentation.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habittracker.data.database.HabitRepository
@@ -13,6 +11,8 @@ import com.example.habittracker.domain.models.AddHabitEvent
 import com.example.habittracker.domain.models.AddHabitState
 import com.example.habittracker.domain.models.HabitEntity
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -20,11 +20,12 @@ import java.util.UUID
 class AddHabitViewModel(
     private val habitRepository: HabitRepository
 ) : ViewModel() {
-    private val TAG = "add_habit_fragment"
-    private val _stateLiveData = MutableLiveData<AddHabitState>()
+
+    private val _stateFlow = MutableStateFlow<AddHabitState?>(null)
+    val stateFlow: StateFlow<AddHabitState?> get() = _stateFlow
+
     private val _events = MutableSharedFlow<AddHabitEvent>()
     val events = _events.asSharedFlow()
-    val stateLiveData: LiveData<AddHabitState> get() = _stateLiveData
     var id: String = ""
 
     fun initState(id: String, defaultPriority: String, defaultType: String) {
@@ -33,16 +34,10 @@ class AddHabitViewModel(
         viewModelScope.launch {
             val selectedHabit = habitRepository.getHabitById(id)
 
-            if (selectedHabit != null) {
-                val selectedHabitState = HabitMapper.INSTANCE.entityToState(
-                    selectedHabit,
-                    defaultPriority,
-                    defaultType
-                )
-
-                _stateLiveData.value = selectedHabitState
+            val selectedHabitState = if (selectedHabit != null) {
+                HabitMapper.INSTANCE.entityToState(selectedHabit, defaultPriority, defaultType)
             } else {
-                _stateLiveData.value = AddHabitState(
+                AddHabitState(
                     id = UUID.randomUUID().toString(),
                     apiId = null,
                     title = "",
@@ -54,17 +49,23 @@ class AddHabitViewModel(
                     habitStatus = HabitStatus.ADD
                 )
             }
+
+            _stateFlow.value = selectedHabitState
         }
     }
 
     fun onSaveClicked(priority: Priority, type: HabitType) {
-        if (id.isNotBlank()) {
-            updateHabit(priority, type)
-        } else {
-            addHabit(priority, type)
-        }
+        val newHabit = getHabitFromState(priority, type)
 
-        onNavigateButtonClicked()
+        viewModelScope.launch {
+            if (id.isNotBlank()) {
+                habitRepository.updateHabit(newHabit)
+            } else {
+                habitRepository.addHabit(newHabit)
+            }
+
+            onNavigateButtonClicked()
+        }
     }
 
     fun onNavigateButtonClicked() {
@@ -73,49 +74,32 @@ class AddHabitViewModel(
         }
     }
 
-    private fun updateHabit(priority: Priority, type: HabitType) {
-        val updatedHabit = getHabitFromState(priority, type)
-
-        viewModelScope.launch {
-            habitRepository.updateHabit(updatedHabit)
-        }
-    }
-
-    private fun addHabit(priority: Priority, type: HabitType) {
-        val newHabit = getHabitFromState(priority, type)
-
-        viewModelScope.launch {
-            habitRepository.addHabit(newHabit)
-        }
-    }
-
     private fun getHabitFromState(priority: Priority, type: HabitType): HabitEntity {
-        val state = _stateLiveData.value
-
-        return HabitMapper.INSTANCE.stateToEntity(state!!, priority, type)
+        val state = _stateFlow.value ?: throw IllegalStateException("State should not be null")
+        return HabitMapper.INSTANCE.stateToEntity(state, priority, type)
     }
 
     fun onTitleChanged(newTitle: String) {
-        _stateLiveData.value = stateLiveData.value?.copy(title = newTitle)
+        _stateFlow.value = _stateFlow.value?.copy(title = newTitle)
     }
 
     fun onDescriptionChanged(newDescription: String) {
-        _stateLiveData.value = stateLiveData.value?.copy(description = newDescription)
+        _stateFlow.value = _stateFlow.value?.copy(description = newDescription)
     }
 
     fun onPriorityChanged(newPriority: String) {
-        _stateLiveData.value = stateLiveData.value?.copy(priority = newPriority)
+        _stateFlow.value = _stateFlow.value?.copy(priority = newPriority)
     }
 
     fun onTypeChanged(newType: String) {
-        _stateLiveData.value = stateLiveData.value?.copy(type = newType)
+        _stateFlow.value = _stateFlow.value?.copy(type = newType)
     }
 
     fun onCountChanged(newCount: String) {
-        _stateLiveData.value = stateLiveData.value?.copy(count = newCount)
+        _stateFlow.value = _stateFlow.value?.copy(count = newCount)
     }
 
     fun onFrequencyChanged(newFrequency: String) {
-        _stateLiveData.value = stateLiveData.value?.copy(frequency = newFrequency)
+        _stateFlow.value = _stateFlow.value?.copy(frequency = newFrequency)
     }
 }

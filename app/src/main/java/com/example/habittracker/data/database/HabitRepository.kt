@@ -1,13 +1,13 @@
 package com.example.habittracker.data.database
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import com.example.habittracker.data.api.HabitApiService
 import com.example.habittracker.domain.HabitMapper
 import com.example.habittracker.domain.enums.HabitStatus
 import com.example.habittracker.domain.models.HabitEntity
 import com.example.habittracker.domain.models.HabitRequestUID
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class HabitRepository(
     private val habitDao: HabitDao,
@@ -17,15 +17,9 @@ class HabitRepository(
         return habitDao.getHabitById(id)
     }
 
-    fun getAllHabits(): LiveData<List<HabitEntity>> {
-        val allHabits = habitDao.getAllHabits()
-        val filteredHabits = MediatorLiveData<List<HabitEntity>>()
-
-        filteredHabits.addSource(allHabits) { habits ->
-            filteredHabits.value = habits.filter { it.habitStatus != HabitStatus.DELETE }
-        }
-
-        return filteredHabits
+    fun getAllHabits(): Flow<List<HabitEntity>> {
+        return habitDao.getAllHabits()
+            .map { habits -> habits.filter { it.habitStatus != HabitStatus.DELETE } }
     }
 
     suspend fun updateHabit(habit: HabitEntity) {
