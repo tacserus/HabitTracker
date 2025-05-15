@@ -8,17 +8,19 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.data.database.HabitType
+import com.example.domain.models.HabitListEvent
 import com.example.habittracker.R
 import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentHabitsBinding
-import com.example.habittracker.domain.enums.HabitType
-import com.example.habittracker.domain.enums.ToastMessage
-import com.example.habittracker.domain.models.HabitListEvent
 import com.example.habittracker.presentation.adapters.HabitDecoration
 import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
+import com.example.habittracker.presentation.enums.ToastMessage
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
 import com.example.habittracker.presentation.viewmodels.ViewModelFactory
 import kotlinx.coroutines.launch
@@ -100,13 +102,19 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
         binding.recyclerView.addItemDecoration(HabitDecoration(16))
         binding.recyclerView.adapter = adapter
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            when (habitType) {
-                HabitType.GoodHabit -> habitListViewModel.goodHabits.collect { habits ->
-                    adapter.submit(habits)
-                }
-                HabitType.BadHabit -> habitListViewModel.badHabits.collect { habits ->
-                    adapter.submit(habits)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                when (habitType) {
+                    HabitType.GoodHabit -> {
+                        habitListViewModel.goodHabits.collect { habits ->
+                            adapter.submit(habits)
+                        }
+                    }
+                    HabitType.BadHabit -> {
+                        habitListViewModel.badHabits.collect { habits ->
+                            adapter.submit(habits)
+                        }
+                    }
                 }
             }
         }

@@ -2,7 +2,7 @@ package com.example.habittracker.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.habittracker.data.HabitRepository
+import com.example.data.HabitRepository
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")

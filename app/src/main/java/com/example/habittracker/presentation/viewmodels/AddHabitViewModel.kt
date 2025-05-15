@@ -2,14 +2,14 @@ package com.example.habittracker.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habittracker.data.HabitRepository
-import com.example.habittracker.domain.HabitMapper
-import com.example.habittracker.domain.enums.HabitStatus
-import com.example.habittracker.domain.enums.HabitType
-import com.example.habittracker.domain.enums.Priority
-import com.example.habittracker.domain.models.AddHabitEvent
-import com.example.habittracker.domain.models.AddHabitState
-import com.example.habittracker.domain.models.HabitEntity
+import com.example.data.HabitRepository
+import com.example.data.database.HabitEntity
+import com.example.data.database.HabitType
+import com.example.data.database.Priority
+import com.example.data.mapper.HabitMapper
+import com.example.domain.models.AddHabitEvent
+import com.example.domain.models.AddHabitState
+import com.example.domain.models.HabitStatus
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

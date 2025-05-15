@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.data.database.HabitEntity
 import com.example.habittracker.databinding.ItemLayoutBinding
-import com.example.habittracker.domain.models.HabitEntity
 import com.example.habittracker.presentation.holders.ViewHolder
 
 
