@@ -9,8 +9,8 @@ import androidx.fragment.app.activityViewModels
 import com.example.habittracker.R
 import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentBottomSheetBinding
-import com.example.habittracker.domain.enums.FilterType
-import com.example.habittracker.domain.enums.SortingType
+import com.example.habittracker.presentation.enums.FilterType
+import com.example.habittracker.presentation.enums.SortingType
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
 import com.example.habittracker.presentation.viewmodels.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

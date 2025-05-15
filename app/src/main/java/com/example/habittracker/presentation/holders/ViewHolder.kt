@@ -1,8 +1,8 @@
 package com.example.habittracker.presentation.holders
 
 import androidx.recyclerview.widget.RecyclerView
+import com.example.data.database.HabitEntity
 import com.example.habittracker.databinding.ItemLayoutBinding
-import com.example.habittracker.domain.models.HabitEntity
 
 class ViewHolder(
     private val binding: ItemLayoutBinding,

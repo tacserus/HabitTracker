@@ -1,8 +1,8 @@
 package com.example.habittracker.dagger.components
 
+import com.example.data.dagger.modules.DatabaseModule
+import com.example.data.dagger.modules.RetrofitModule
 import com.example.habittracker.dagger.modules.ContextModule
-import com.example.habittracker.dagger.modules.DatabaseModule
-import com.example.habittracker.dagger.modules.RetrofitModule
 import com.example.habittracker.dagger.modules.ViewModelFactoryModule
 import com.example.habittracker.presentation.fragments.AddHabitFragment
 import com.example.habittracker.presentation.fragments.BottomSheetFragment

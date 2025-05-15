@@ -1,18 +1,18 @@
 <resources>
     <string name="app_name">HabitTracker</string>
+
     <string name="habit_name">Название</string>
     <string name="habit_description">Описание</string>
     <string name="habit_priority">Приоритет</string>
     <string name="habit_type">Тип привычки</string>
     <string name="habit_good_type">Хорошая привычка</string>
     <string name="habit_bad_type">Плохая привычка</string>
-    <string name="habit_quantity">Количество</string>
+    <string name="habit_count">Количество</string>
     <string name="habit_frequency">Периодичность</string>
     <string name="habit_complete_count">Раз выполнено</string>
 
     <string name="habit_edit_name">Введите название</string>
     <string name="habit_edit_description">Введите описание</string>
-    <string name="habit_edit_type">Введите название</string>
     <string name="habit_edit_quantity">Введите количество</string>
     <string name="habit_edit_frequency">Введите периодичность</string>
 
@@ -22,13 +22,10 @@
     <string name="habit_apply">Применить</string>
     <string name="habit_reset">Сбросить</string>
 
-    <string name="habit_list">Список привычек</string>
     <string name="habit_detail">Детали привычки</string>
     <string name="good_habits">Хорошие привычки</string>
     <string name="bad_habits">Плохие привычки</string>
 
-    <string name="open_drawer">Drawer открыт</string>
-    <string name="close_drawer">Drawer закрыт</string>
     <string name="drawer_header">Меню</string>
 
     <string name="info_about_app_title">Информация о приложении</string>
@@ -40,16 +37,15 @@
     <string name="zero">0</string>
     <string name="sorting">Сортировка</string>
 
-    <string name="table_name">HabitsTracker</string>
+    <string name="complete">Выполнить</string>
+    <string name="cross">Крестик</string>
+
     <string name="by_quantity">По количеству</string>
     <string name="by_frequency">По частоте</string>
 
     <string name="sometimes">Иногда</string>
     <string name="often">Часто</string>
     <string name="daily">Ежедневно</string>
-
-    <string name="complete">Выполнить</string>
-    <string name="cross">Крестик</string>
 
     <string name="good_low_message">Стоит выполнить еще %1$d раз</string>
     <string name="good_high_message">You are breathtaking!</string>

@@ -31,7 +31,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/habit_quantity"
+            android:text="@string/habit_count"
             android:layout_marginTop="16dp"/>
 
         <EditText
@@ -76,7 +76,7 @@
                 android:id="@+id/sortQuantity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/habit_quantity" />
+                android:text="@string/habit_count" />
 
             <RadioButton
                 android:id="@+id/sortFrequency"
