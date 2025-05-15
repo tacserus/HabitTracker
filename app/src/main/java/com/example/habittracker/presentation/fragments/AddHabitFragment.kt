@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.data.database.HabitType
-import com.example.data.database.Priority
-import com.example.domain.models.AddHabitEvent
 import com.example.habittracker.R
 import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentAddHabitBinding
+import com.example.habittracker.domain.enums.HabitType
+import com.example.habittracker.domain.enums.Priority
+import com.example.habittracker.domain.models.AddHabitEvent
 import com.example.habittracker.presentation.viewmodels.AddHabitViewModel
 import com.example.habittracker.presentation.viewmodels.ViewModelFactory
 import kotlinx.coroutines.launch
