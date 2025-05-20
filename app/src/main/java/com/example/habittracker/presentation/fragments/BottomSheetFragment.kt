@@ -28,7 +28,7 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (requireActivity().application as App).appComponent.inject(this)
+        (requireActivity().application as App).presentationSubcomponent.inject(this)
     }
 
     override fun onCreateView(

@@ -52,7 +52,7 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (requireActivity().application as App).appComponent.inject(this)
+        (requireActivity().application as App).presentationSubcomponent.inject(this)
 
 
         arguments?.let {

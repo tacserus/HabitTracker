@@ -33,7 +33,7 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (requireActivity().application as App).appComponent.inject(this)
+        (requireActivity().application as App).presentationSubcomponent.inject(this)
 
         addHabitViewModel.initState(
             arguments?.getString("id") ?: "",

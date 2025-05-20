@@ -3,25 +3,12 @@ package com.example.habittracker.dagger.components
 import com.example.data.dagger.modules.DatabaseModule
 import com.example.data.dagger.modules.RetrofitModule
 import com.example.habittracker.dagger.modules.ContextModule
-import com.example.habittracker.dagger.modules.DomainModule
-import com.example.habittracker.dagger.modules.ViewModelFactoryModule
-import com.example.habittracker.presentation.fragments.AddHabitFragment
-import com.example.habittracker.presentation.fragments.BottomSheetFragment
-import com.example.habittracker.presentation.fragments.HabitFragment
 import dagger.Component
 import javax.inject.Singleton
 
 
 @Singleton
-@Component(modules = [
-    ContextModule::class,
-    RetrofitModule::class,
-    DatabaseModule::class,
-    ViewModelFactoryModule::class,
-    DomainModule::class
-])
+@Component(modules = [ContextModule::class, DatabaseModule::class, RetrofitModule::class])
 interface AppComponent {
-    fun inject(fragment: HabitFragment)
-    fun inject(fragment: BottomSheetFragment)
-    fun inject(fragment: AddHabitFragment)
+    fun presentationSubcomponentFactory(): PresentationSubcomponent.Factory
 }
