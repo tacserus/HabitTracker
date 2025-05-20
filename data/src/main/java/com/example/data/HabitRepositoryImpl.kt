@@ -3,54 +3,56 @@ package com.example.data
 import android.util.Log
 import com.example.data.api.HabitApiService
 import com.example.data.database.HabitDao
-import com.example.data.database.HabitEntity
 import com.example.data.mapper.HabitMapper
+import com.example.domain.HabitRepository
 import com.example.domain.models.HabitDoneMark
+import com.example.domain.models.HabitModel
 import com.example.domain.models.HabitRequestUID
 import com.example.domain.models.HabitStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class HabitRepository(
+class HabitRepositoryImpl(
     private val habitDao: HabitDao,
     private val habitApiService: HabitApiService
-) {
-    suspend fun getHabitById(id: String): HabitEntity? {
-        return habitDao.getHabitById(id)
+)  : HabitRepository {
+    override suspend fun getHabitById(id: String): HabitModel? {
+        val habitEntity = habitDao.getHabitById(id) ?: return null
+        return HabitMapper.INSTANCE.entityToModel(habitEntity)
     }
 
-    fun getAllHabits(): Flow<List<HabitEntity>> {
+    override suspend fun getAllHabits(): Flow<List<HabitModel>> {
         return habitDao.getAllHabits()
-            .map { habits -> habits.filter { it.habitStatus != HabitStatus.DELETE } }
+            .map { habits -> habits.filter { it.habitStatus != HabitStatus.DELETE }.map { habit -> HabitMapper.INSTANCE.entityToModel(habit) } }
     }
 
-    suspend fun getListAllHabits(): List<HabitEntity> {
-        return habitDao.getListAllHabits()
+    override suspend fun getListAllHabits(): List<HabitModel> {
+        return habitDao.getListAllHabits().map { habit -> HabitMapper.INSTANCE.entityToModel(habit) }
     }
 
-    suspend fun updateHabit(habit: HabitEntity) {
-        habitDao.updateHabit(habit)
+    override suspend fun updateHabit(habitModel: HabitModel) {
+        habitDao.updateHabit(HabitMapper.INSTANCE.modelToEntity(habitModel))
     }
 
-    suspend fun addHabit(habit: HabitEntity) {
-        habitDao.insertHabit(habit)
+    override suspend fun addHabit(habitModel: HabitModel) {
+        habitDao.insertHabit(HabitMapper.INSTANCE.modelToEntity(habitModel))
     }
 
-    suspend fun deleteHabit(habit: HabitEntity) {
-        habitDao.insertHabit(habit.copy(habitStatus = HabitStatus.DELETE))
+    override suspend fun deleteHabit(habitModel: HabitModel) {
+        habitDao.insertHabit(HabitMapper.INSTANCE.modelToEntity(habitModel.copy(habitStatus = HabitStatus.DELETE)))
     }
 
-    suspend fun updateDoneMark(id: String) {
+    override suspend fun updateDoneMark(id: String) {
         val updatedHabit = habitDao.getHabitById(id)
 
         if (updatedHabit != null) {
             val date = System.currentTimeMillis()
             val newDoneMarks = updatedHabit.doneMarks.plus(date)
-            updateHabit(updatedHabit.copy(doneMarks = newDoneMarks, isDoneMarksSynced = false))
+            updateHabit(HabitMapper.INSTANCE.entityToModel(updatedHabit.copy(doneMarks = newDoneMarks, isDoneMarksSynced = false)))
         }
     }
 
-    suspend fun syncHabits() {
+    override suspend fun syncHabits() {
         Log.d("Sync", "Starting habit synchronization...")
 
         processLocalCreations()

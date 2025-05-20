@@ -1,11 +1,11 @@
 package com.example.habittracker.presentation.adapters
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.data.database.HabitEntity
+import com.example.domain.models.HabitModel
 
 class HabitDiffCallback (
-    private val oldList: List<HabitEntity>,
-    private val newList: List<HabitEntity>
+    private val oldList: List<HabitModel>,
+    private val newList: List<HabitModel>
 ) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int = oldList.size

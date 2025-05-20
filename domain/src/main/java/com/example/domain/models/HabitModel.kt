@@ -1,15 +1,9 @@
-package com.example.data.database
+package com.example.domain.models
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.example.domain.models.HabitStatus
-import com.example.domain.models.Priority
-import com.example.domain.models.Type
 import java.io.Serializable
 
-@Entity(tableName = "habits")
-data class HabitEntity (
-    @PrimaryKey var id: String,
+data class HabitModel (
+    val id: String,
     val apiId: String? = null,
     val title: String,
     val description: String,

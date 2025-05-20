@@ -3,6 +3,7 @@ package com.example.habittracker.dagger.components
 import com.example.data.dagger.modules.DatabaseModule
 import com.example.data.dagger.modules.RetrofitModule
 import com.example.habittracker.dagger.modules.ContextModule
+import com.example.habittracker.dagger.modules.DomainModule
 import com.example.habittracker.dagger.modules.ViewModelFactoryModule
 import com.example.habittracker.presentation.fragments.AddHabitFragment
 import com.example.habittracker.presentation.fragments.BottomSheetFragment
@@ -16,7 +17,8 @@ import javax.inject.Singleton
     ContextModule::class,
     RetrofitModule::class,
     DatabaseModule::class,
-    ViewModelFactoryModule::class
+    ViewModelFactoryModule::class,
+    DomainModule::class
 ])
 interface AppComponent {
     fun inject(fragment: HabitFragment)

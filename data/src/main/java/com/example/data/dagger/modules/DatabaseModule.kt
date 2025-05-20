@@ -2,7 +2,7 @@ package com.example.data.dagger.modules
 
 import android.content.Context
 import androidx.room.Room
-import com.example.data.HabitRepository
+import com.example.data.HabitRepositoryImpl
 import com.example.data.R
 import com.example.data.api.HabitApiService
 import com.example.data.database.HabitDao
@@ -21,7 +21,7 @@ class DatabaseModule {
             context.applicationContext,
             HabitsDb::class.java,
             context.getString(R.string.table_name)
-        ).allowMainThreadQueries().fallbackToDestructiveMigration().build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Singleton
@@ -32,10 +32,10 @@ class DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideRepository(
+    fun provideHabitRepositoryImpl(
         habitDao: HabitDao,
         habitApiService: HabitApiService
-    ): HabitRepository {
-        return HabitRepository(habitDao, habitApiService)
+    ): HabitRepositoryImpl {
+        return HabitRepositoryImpl(habitDao, habitApiService)
     }
 }

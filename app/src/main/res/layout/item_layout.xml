@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
         <variable
             name="item"
-            type="com.example.data.database.HabitEntity" />
+            type="com.example.domain.models.HabitModel" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -112,7 +111,7 @@
                             android:gravity="center"
                             android:layout_weight="1"
                             android:background="@drawable/border"
-                            android:text="@{item.priority.id}"/>
+                            android:text="@{item.priority.description}"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -137,7 +136,7 @@
                             android:gravity="center"
                             android:layout_weight="1"
                             android:background="@drawable/border"
-                            android:text="@{item.type.id}"/>
+                            android:text="@{item.type.description}"/>
                     </LinearLayout>
 
                     <LinearLayout

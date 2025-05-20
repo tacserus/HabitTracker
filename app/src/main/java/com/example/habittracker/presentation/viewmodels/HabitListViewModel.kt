@@ -2,10 +2,15 @@ package com.example.habittracker.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.data.HabitRepository
-import com.example.data.database.HabitEntity
-import com.example.data.database.HabitType
 import com.example.domain.models.HabitListEvent
+import com.example.domain.models.HabitModel
+import com.example.domain.models.Type
+import com.example.domain.usecases.AddDoneMarkUseCase
+import com.example.domain.usecases.DeleteHabitUseCase
+import com.example.domain.usecases.GetAllHabitsUseCase
+import com.example.domain.usecases.GetHabitByIdUseCase
+import com.example.domain.usecases.GetListAllHabitsUseCase
+import com.example.domain.usecases.SyncHabitsUseCase
 import com.example.habittracker.presentation.enums.FilterType
 import com.example.habittracker.presentation.enums.SortingType
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,19 +21,24 @@ import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 class HabitListViewModel(
-    private val habitRepository: HabitRepository
+    val getAllHabitsUseCase: GetAllHabitsUseCase,
+    val deleteHabitUseCase: DeleteHabitUseCase,
+    val addDoneMarkUseCase: AddDoneMarkUseCase,
+    val getHabitByIdUseCase: GetHabitByIdUseCase,
+    val syncHabitsUseCase: SyncHabitsUseCase,
+    val getListAllHabitsUseCase: GetListAllHabitsUseCase
 ) : ViewModel() {
     private var currentFilters: MutableMap<FilterType, String> = mutableMapOf()
     private var currentSortingType: SortingType = SortingType.DEFAULT
     private var currentSearchingWord: String = ""
 
-    private val _currentItems = MutableStateFlow<List<HabitEntity>>(emptyList())
+    private val _currentItems = MutableStateFlow<List<HabitModel>>(emptyList())
 
-    private val _goodHabits = MutableStateFlow<List<HabitEntity>>(emptyList())
-    val goodHabits: StateFlow<List<HabitEntity>> get() = _goodHabits
+    private val _goodHabits = MutableStateFlow<List<HabitModel>>(emptyList())
+    val goodHabits: StateFlow<List<HabitModel>> get() = _goodHabits
 
-    private val _badHabits = MutableStateFlow<List<HabitEntity>>(emptyList())
-    val badHabits: StateFlow<List<HabitEntity>> get() = _badHabits
+    private val _badHabits = MutableStateFlow<List<HabitModel>>(emptyList())
+    val badHabits: StateFlow<List<HabitModel>> get() = _badHabits
 
     val syncComplete = MutableStateFlow(false)
 
@@ -41,13 +51,13 @@ class HabitListViewModel(
 
     private fun getAllHabits() {
         viewModelScope.launch {
-            habitRepository.getAllHabits().collect { habits ->
+            getAllHabitsUseCase.execute().collect { habits ->
                 checkOptions(habits)
             }
         }
     }
 
-    private fun checkOptions(habits: List<HabitEntity>) {
+    private fun checkOptions(habits: List<HabitModel>) {
         sortByField(habits)
         applyFilters()
 
@@ -58,7 +68,7 @@ class HabitListViewModel(
         updateHabits()
     }
 
-    private fun sortByField(habits: List<HabitEntity>) {
+    private fun sortByField(habits: List<HabitModel>) {
         val sortedItems = when (currentSortingType) {
             SortingType.QUANTITY -> habits.sortedBy { it.count.toInt() }
             SortingType.FREQUENCY -> habits.sortedBy { it.frequency.toInt() }
@@ -74,7 +84,7 @@ class HabitListViewModel(
         _currentItems.value = filteredItems
     }
 
-    private fun applyFilter(filteredHabits: List<HabitEntity>, filterType: FilterType, value: String): List<HabitEntity>  {
+    private fun applyFilter(filteredHabits: List<HabitModel>, filterType: FilterType, value: String): List<HabitModel>  {
         return when (filterType) {
             FilterType.QUANTITY -> filteredHabits.filter { it.count == value }
             FilterType.FREQUENCY -> filteredHabits.filter { it.frequency == value }
@@ -88,10 +98,10 @@ class HabitListViewModel(
 
     private fun updateHabits() {
         _goodHabits.value = _currentItems.value.filter {
-            it.type == HabitType.GoodHabit
+            it.type == Type.GoodHabit
         }
         _badHabits.value = _currentItems.value.filter {
-            it.type == HabitType.BadHabit
+            it.type == Type.BadHabit
         }
     }
 
@@ -111,7 +121,7 @@ class HabitListViewModel(
         viewModelScope.launch {
             syncComplete.value = false
             try {
-                habitRepository.syncHabits()
+                syncHabitsUseCase.execute()
                 syncComplete.value = true
             } finally {
                 syncComplete.value = true
@@ -121,17 +131,17 @@ class HabitListViewModel(
 
     fun deleteHabit(id: String) {
         viewModelScope.launch {
-            habitRepository.getHabitById(id)?.let { habit ->
-                habitRepository.deleteHabit(habit)
+            getHabitByIdUseCase.execute(id)?.let { habit ->
+                deleteHabitUseCase.execute(habit)
             }
         }
     }
 
     fun saveDoneMark(id: String) {
         viewModelScope.launch {
-            habitRepository.updateDoneMark(id)
+            addDoneMarkUseCase.execute(id)
 
-            val habit = habitRepository.getHabitById(id)
+            val habit = getHabitByIdUseCase.execute(id)
 
             if (habit != null) {
                 val difference = habit.doneMarks.size - habit.count.toInt()
@@ -156,7 +166,7 @@ class HabitListViewModel(
         currentSearchingWord = searchingWord
 
         viewModelScope.launch {
-            checkOptions(habitRepository.getListAllHabits())
+            checkOptions(getListAllHabitsUseCase.execute())
         }
     }
 
@@ -166,7 +176,7 @@ class HabitListViewModel(
         currentSearchingWord = ""
 
         viewModelScope.launch {
-            checkOptions(habitRepository.getListAllHabits())
+            checkOptions(getListAllHabitsUseCase.execute())
         }
     }
 }

@@ -13,8 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.data.database.HabitType
 import com.example.domain.models.HabitListEvent
+import com.example.domain.models.Type
 import com.example.habittracker.R
 import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentHabitsBinding
@@ -22,27 +22,27 @@ import com.example.habittracker.presentation.adapters.HabitDecoration
 import com.example.habittracker.presentation.adapters.RecyclerViewAdapter
 import com.example.habittracker.presentation.enums.ToastMessage
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
-import com.example.habittracker.presentation.viewmodels.ViewModelFactory
+import com.example.habittracker.presentation.viewmodels.HabitListViewModelFactory
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HabitFragment : Fragment(R.layout.fragment_habits) {
     private lateinit var binding: FragmentHabitsBinding
 
-    private lateinit var habitType: HabitType
+    private lateinit var habitType: Type
 
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val habitListViewModel: HabitListViewModel by activityViewModels { viewModelFactory }
+    lateinit var habitListViewModelFactory: HabitListViewModelFactory
+    private val habitListViewModel: HabitListViewModel by activityViewModels { habitListViewModelFactory }
 
     companion object {
         private const val TAG = "bad_habits_fragment"
         private const val HABITS_TYPE = "habits_type"
 
-        fun newInstance(type: HabitType): HabitFragment {
+        fun newInstance(type: Type): HabitFragment {
             val fragment = HabitFragment()
             val args = Bundle().apply {
-                putParcelable(HABITS_TYPE, type)
+                putSerializable(HABITS_TYPE, type)
             }
             fragment.arguments = args
             return fragment
@@ -57,7 +57,7 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
 
         arguments?.let {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                habitType = it.getParcelable(HABITS_TYPE, HabitType::class.java)!!
+                habitType = it.getParcelable(HABITS_TYPE, Type::class.java)!!
             } else {
                 @Suppress("DEPRECATION")
                 habitType = it.getParcelable(HABITS_TYPE)!!
@@ -85,10 +85,10 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
         }
 
         when (habitType) {
-            HabitType.GoodHabit-> {
+            Type.GoodHabit-> {
                 binding.listTitle.text = resources.getString(R.string.good_habits)
             }
-            HabitType.BadHabit -> {
+            Type.BadHabit -> {
                 binding.listTitle.text = resources.getString(R.string.bad_habits)
             }
         }
@@ -105,12 +105,12 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 when (habitType) {
-                    HabitType.GoodHabit -> {
+                    Type.GoodHabit -> {
                         habitListViewModel.goodHabits.collect { habits ->
                             adapter.submit(habits)
                         }
                     }
-                    HabitType.BadHabit -> {
+                    Type.BadHabit -> {
                         habitListViewModel.badHabits.collect { habits ->
                             adapter.submit(habits)
                         }
@@ -163,10 +163,10 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
         when (habitListEvent) {
             is HabitListEvent.ShowLowToast -> {
                 val message = when (habitType) {
-                    HabitType.GoodHabit -> {
+                    Type.GoodHabit -> {
                         getString(ToastMessage.GoodLow.id, habitListEvent.difference)
                     }
-                    HabitType.BadHabit -> {
+                    Type.BadHabit -> {
                         getString(ToastMessage.BadLow.id, habitListEvent.difference)
                     }
                 }
@@ -174,10 +174,10 @@ class HabitFragment : Fragment(R.layout.fragment_habits) {
             }
             HabitListEvent.ShowHighToast -> {
                 val message = when (habitType) {
-                    HabitType.GoodHabit -> {
+                    Type.GoodHabit -> {
                         requireActivity().getString(ToastMessage.GoodHigh.id)
                     }
-                    HabitType.BadHabit -> {
+                    Type.BadHabit -> {
                         requireActivity().getString(ToastMessage.BadHigh.id)
                     }
                 }

@@ -11,14 +11,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.data.database.HabitType
-import com.example.data.database.Priority
 import com.example.domain.models.AddHabitEvent
+import com.example.domain.models.Priority
+import com.example.domain.models.Type
 import com.example.habittracker.R
 import com.example.habittracker.dagger.App
 import com.example.habittracker.databinding.FragmentAddHabitBinding
 import com.example.habittracker.presentation.viewmodels.AddHabitViewModel
-import com.example.habittracker.presentation.viewmodels.ViewModelFactory
+import com.example.habittracker.presentation.viewmodels.AddHabitViewModelFactory
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,8 +27,8 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
     private lateinit var binding: FragmentAddHabitBinding
 
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val addHabitViewModel: AddHabitViewModel by viewModels { viewModelFactory }
+    lateinit var addHabitViewModelFactory: AddHabitViewModelFactory
+    private val addHabitViewModel: AddHabitViewModel by viewModels { addHabitViewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +37,8 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
 
         addHabitViewModel.initState(
             arguments?.getString("id") ?: "",
-            requireContext().getString(Priority.Lite.id),
-            requireContext().getString(HabitType.GoodHabit.id)
+            Priority.Lite.description,
+            Type.GoodHabit.description
         )
     }
 
@@ -80,8 +80,8 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
 
         binding.radioGroupHabitType.setOnCheckedChangeListener { _, checkedId ->
             val newType = when (checkedId) {
-                R.id.radioButtonGoodHabit -> requireContext().getString(HabitType.GoodHabit.id)
-                R.id.radioButtonBadHabit -> requireContext().getString(HabitType.BadHabit.id)
+                R.id.radioButtonGoodHabit -> Type.GoodHabit.description
+                R.id.radioButtonBadHabit -> Type.BadHabit.description
                 else -> ""
             }
 
@@ -102,11 +102,11 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
             if (checkFieldsForSave()) {
 
                 val priority = Priority.entries.find {
-                    requireContext().getString(it.id) == addHabitViewModel.stateFlow.value?.priority
+                    it.description == addHabitViewModel.stateFlow.value?.priority
                 } ?: Priority.Lite
-                val type = HabitType.entries.find {
-                    requireContext().getString(it.id) == addHabitViewModel.stateFlow.value?.type
-                } ?: HabitType.GoodHabit
+                val type = Type.entries.find {
+                    it.description == addHabitViewModel.stateFlow.value?.type
+                } ?: Type.GoodHabit
                 addHabitViewModel.onSaveClicked(priority, type)
             }
         }
@@ -116,7 +116,7 @@ class AddHabitFragment : Fragment(R.layout.fragment_add_habit) {
     }
 
     private fun initSpinner() {
-        val items = Priority.entries.map { priority -> requireContext().getString(priority.id) }
+        val items = Priority.entries.map { priority -> priority.description }
         val adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_spinner_item, items)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerPriority.adapter = adapter

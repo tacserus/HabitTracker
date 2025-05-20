@@ -32,9 +32,6 @@ interface HabitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHabit(nameEntity: HabitEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHabits(habits: List<HabitEntity>)
-
     @Delete
-    fun deleteHabit(nameEntity: HabitEntity)
+    suspend fun deleteHabit(nameEntity: HabitEntity)
 }

@@ -12,7 +12,7 @@ import com.example.habittracker.databinding.FragmentBottomSheetBinding
 import com.example.habittracker.presentation.enums.FilterType
 import com.example.habittracker.presentation.enums.SortingType
 import com.example.habittracker.presentation.viewmodels.HabitListViewModel
-import com.example.habittracker.presentation.viewmodels.ViewModelFactory
+import com.example.habittracker.presentation.viewmodels.HabitListViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import javax.inject.Inject
 
@@ -20,8 +20,8 @@ class BottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bottom_s
     private lateinit var binding: FragmentBottomSheetBinding
 
     @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private val habitListViewModel: HabitListViewModel by activityViewModels { viewModelFactory }
+    lateinit var habitListViewModelFactory: HabitListViewModelFactory
+    private val habitListViewModel: HabitListViewModel by activityViewModels { habitListViewModelFactory }
 
     private val TAG: String = "bsFragment"
 

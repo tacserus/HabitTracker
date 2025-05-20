@@ -2,14 +2,16 @@ package com.example.habittracker.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.data.HabitRepository
-import com.example.data.database.HabitEntity
-import com.example.data.database.HabitType
-import com.example.data.database.Priority
 import com.example.data.mapper.HabitMapper
 import com.example.domain.models.AddHabitEvent
 import com.example.domain.models.AddHabitState
+import com.example.domain.models.HabitModel
 import com.example.domain.models.HabitStatus
+import com.example.domain.models.Priority
+import com.example.domain.models.Type
+import com.example.domain.usecases.AddHabitUseCase
+import com.example.domain.usecases.GetHabitByIdUseCase
+import com.example.domain.usecases.UpdateHabitUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +20,9 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class AddHabitViewModel(
-    private val habitRepository: HabitRepository
+    val addHabitUseCase: AddHabitUseCase,
+    val updateHabitUseCase: UpdateHabitUseCase,
+    val getHabitByIdUseCase: GetHabitByIdUseCase
 ) : ViewModel() {
 
     private val _stateFlow = MutableStateFlow<AddHabitState?>(null)
@@ -32,10 +36,10 @@ class AddHabitViewModel(
         this.id = id
 
         viewModelScope.launch {
-            val selectedHabit = habitRepository.getHabitById(id)
+            val selectedHabit = getHabitByIdUseCase.execute(id)
 
             val selectedHabitState = if (selectedHabit != null) {
-                HabitMapper.INSTANCE.entityToState(selectedHabit, defaultPriority, defaultType)
+                HabitMapper.INSTANCE.modelToState(selectedHabit, defaultPriority, defaultType)
             } else {
                 AddHabitState(
                     id = UUID.randomUUID().toString(),
@@ -56,14 +60,14 @@ class AddHabitViewModel(
         }
     }
 
-    fun onSaveClicked(priority: Priority, type: HabitType) {
+    fun onSaveClicked(priority: Priority, type: Type) {
         val newHabit = getHabitFromState(priority, type)
 
         viewModelScope.launch {
             if (id.isNotBlank()) {
-                habitRepository.updateHabit(newHabit)
+                updateHabitUseCase.execute(newHabit)
             } else {
-                habitRepository.addHabit(newHabit)
+                addHabitUseCase.execute(newHabit)
             }
 
             onNavigateButtonClicked()
@@ -76,9 +80,9 @@ class AddHabitViewModel(
         }
     }
 
-    private fun getHabitFromState(priority: Priority, type: HabitType): HabitEntity {
+    private fun getHabitFromState(priority: Priority, type: Type): HabitModel {
         val state = _stateFlow.value ?: throw IllegalStateException("State should not be null")
-        return HabitMapper.INSTANCE.stateToEntity(state, priority, type)
+        return HabitMapper.INSTANCE.stateToModel(state, priority, type)
     }
 
     fun onTitleChanged(newTitle: String) {
