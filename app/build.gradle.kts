@@ -36,12 +36,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -59,7 +59,8 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":domain"))
+    implementation(project(":data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -73,8 +74,6 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.cardview)
     implementation(libs.material)
-    implementation(libs.androidx.room.common)
-    implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.runner)
     implementation(libs.androidx.espresso.core)
     testImplementation(libs.junit)
@@ -87,9 +86,16 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    implementation(libs.androidx.room.runtime)
-    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+    implementation(libs.okhttp)
+
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
+
+    implementation(libs.androidx.swiperefreshlayout)
 }

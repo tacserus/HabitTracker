@@ -4,20 +4,23 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.models.HabitModel
 import com.example.habittracker.databinding.ItemLayoutBinding
-import com.example.habittracker.domain.models.Habit
 import com.example.habittracker.presentation.holders.ViewHolder
 
 
 class RecyclerViewAdapter(
-    private val onItemClicked: (String) -> Unit
+    private val onItemClicked: (String) -> Unit,
+    private val onCompleteClicked: (String) -> Unit,
+    private val onDeleteClicked: (String) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
-    private var habits = listOf<Habit>()
+    private var habits = listOf<HabitModel>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemLayoutBinding.inflate(inflater, parent, false)
-        return ViewHolder(binding)
+
+        return ViewHolder(binding, onCompleteClicked, onDeleteClicked)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -31,7 +34,7 @@ class RecyclerViewAdapter(
         return habits.size
     }
 
-    fun submit(newHabits: List<Habit>) {
+    fun submit(newHabits: List<HabitModel>) {
         val diffCallback = HabitDiffCallback(habits, newHabits)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
 

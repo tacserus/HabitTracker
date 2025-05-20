@@ -15,7 +15,7 @@
 
     <fragment
         android:id="@+id/goodHabitsFragment"
-        android:name="com.example.habittracker.presentation.fragments.HabitsFragment">
+        android:name="com.example.habittracker.presentation.fragments.HabitFragment">
 
         <action
             android:id="@+id/action_goodHabitsFragment_to_addHabitFragment"
@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/badHabitsFragment"
-        android:name="com.example.habittracker.presentation.fragments.HabitsFragment">
+        android:name="com.example.habittracker.presentation.fragments.HabitFragment">
 
         <action
             android:id="@+id/action_badHabitsFragment_to_addHabitFragment"
