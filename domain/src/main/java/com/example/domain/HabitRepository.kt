@@ -11,7 +11,7 @@ interface HabitRepository {
     suspend fun updateHabit(habitModel: HabitModel)
     suspend fun addHabit(habitModel: HabitModel)
     suspend fun deleteHabit(habitModel: HabitModel)
-    suspend fun updateDoneMark(id: String)
+    suspend fun updateDoneMark(habitModel: HabitModel, date: Long)
 
     suspend fun syncHabits()
 }

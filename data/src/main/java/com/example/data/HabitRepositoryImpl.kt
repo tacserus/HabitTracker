@@ -42,14 +42,10 @@ class HabitRepositoryImpl(
         habitDao.insertHabit(HabitMapper.INSTANCE.modelToEntity(habitModel.copy(habitStatus = HabitStatus.DELETE)))
     }
 
-    override suspend fun updateDoneMark(id: String) {
-        val updatedHabit = habitDao.getHabitById(id)
-
-        if (updatedHabit != null) {
-            val date = System.currentTimeMillis()
-            val newDoneMarks = updatedHabit.doneMarks.plus(date)
-            updateHabit(HabitMapper.INSTANCE.entityToModel(updatedHabit.copy(doneMarks = newDoneMarks, isDoneMarksSynced = false)))
-        }
+    override suspend fun updateDoneMark(habitModel: HabitModel, date: Long) {
+        val updatedHabitEntity = HabitMapper.INSTANCE.modelToEntity(habitModel)
+        val newDoneMarks = updatedHabitEntity.doneMarks.plus(date)
+        updateHabit(HabitMapper.INSTANCE.entityToModel(updatedHabitEntity.copy(doneMarks = newDoneMarks, isDoneMarksSynced = false)))
     }
 
     override suspend fun syncHabits() {

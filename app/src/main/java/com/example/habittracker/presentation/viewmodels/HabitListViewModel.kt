@@ -1,5 +1,6 @@
 package com.example.habittracker.presentation.viewmodels
 
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.models.HabitListEvent
@@ -18,6 +19,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlin.math.absoluteValue
 
 class HabitListViewModel(
@@ -139,20 +142,29 @@ class HabitListViewModel(
 
     fun saveDoneMark(id: String) {
         viewModelScope.launch {
-            addDoneMarkUseCase.execute(id)
-
-            val habit = getHabitByIdUseCase.execute(id)
-
-            if (habit != null) {
-                val difference = habit.doneMarks.size - habit.count.toInt()
-
-                if (difference >= 0) {
-                    _events.emit(HabitListEvent.ShowHighToast)
-                } else {
-                    _events.emit(HabitListEvent.ShowLowToast(difference.absoluteValue))
-                }
+            val date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                LocalDateTime.now().toInstant(ZoneOffset.UTC).epochSecond
+            } else {
+                System.currentTimeMillis()
             }
 
+            val updatedHabit = getHabitByIdUseCase.execute(id)
+
+            if (updatedHabit != null) {
+                addDoneMarkUseCase.execute(updatedHabit, date)
+
+                val habit = getHabitByIdUseCase.execute(id)
+
+                if (habit != null) {
+                    val difference = habit.doneMarks.size - habit.count.toInt()
+
+                    if (difference >= 0) {
+                        _events.emit(HabitListEvent.ShowHighToast)
+                    } else {
+                        _events.emit(HabitListEvent.ShowLowToast(difference.absoluteValue))
+                    }
+                }
+            }
         }
     }
 
