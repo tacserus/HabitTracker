@@ -12,6 +12,14 @@ kotlin {
     }
 }
 
+tasks.test { useJUnitPlatform() }
+
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
+    testImplementation(kotlin("test"))
+    testImplementation(libs.mockk)
+    testImplementation (libs.jetbrains.kotlinx.coroutines.test)
+
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }

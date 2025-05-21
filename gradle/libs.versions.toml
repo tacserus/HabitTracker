@@ -5,8 +5,12 @@ dagger = "2.51"
 daggerCompiler = "2.51"
 databindingCompiler = "8.9.1"
 databindingRuntime = "8.9.1"
+junitJupiter = "5.10.0"
+junitJupiterEngine = "5.10.0"
+kaspresso = "1.5.2"
 kotlin = "1.9.21"
 kotlinxCoroutinesCore = "1.7.3"
+kotlinxCoroutinesTestVersion = "1.6"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -21,6 +25,7 @@ lifecycleViewmodelKtx = "2.8.7"
 navigationFragmentKtx = "2.8.9"
 recyclerview = "1.4.0"
 constraintlayout = "2.2.1"
+mockk = "1.14.2"
 cardview = "1.0.0"
 material = "1.12.0"
 navigationRuntimeKtx = "2.8.9"
@@ -33,6 +38,7 @@ mapstruct = "1.5.3.Final"
 mapstructProcessor = "1.5.3.Final"
 mapstructProcessorVersion = "1.6.0"
 okhttp = "4.12.0"
+orchestrator = "1.5.1"
 retrofit = "2.9.0"
 converterGson = "2.9.0"
 swiperefreshlayout = "1.2.0-beta01"
@@ -40,6 +46,7 @@ jetbrainsKotlinJvm = "1.9.21"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "orchestrator" }
 androidx-databinding-compiler = { module = "androidx.databinding:databinding-compiler", version.ref = "databindingCompiler" }
 androidx-databinding-runtime = { module = "androidx.databinding:databinding-runtime", version.ref = "databindingRuntime" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
@@ -52,6 +59,7 @@ androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefre
 compiler = { module = "com.android.databinding:compiler" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
+jetbrains-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTestVersion" }
 databinding-compiler = { module = "com.android.databinding:compiler", version.ref = "compiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -67,6 +75,9 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterEngine" }
+kaspresso = { module = "com.kaspersky.android-components:kaspresso", version.ref = "kaspresso" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
@@ -85,6 +96,7 @@ mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
 #noinspection SimilarGradleDependency
 mapstruct-processor-v160 = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstructProcessorVersion" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
