@@ -14,7 +14,7 @@
       <SelectionState runConfigName="addButton_shouldOpenAddHabitTestScreen()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="printHelloTest()">
+      <SelectionState runConfigName="addButton_shouldOpenAddHabitTestScreen() (1)">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

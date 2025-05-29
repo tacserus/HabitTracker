@@ -1,8 +1,5 @@
 package com.example.data.api
 
-import com.example.domain.models.HabitDoneMark
-import com.example.domain.models.HabitDto
-import com.example.domain.models.HabitRequestUID
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

@@ -1,9 +1,9 @@
 package com.example.domain.unitests
 
-import com.example.domain.TestHabitModel.Companion.firstTestHabitModel
-import com.example.domain.TestHabitModel.Companion.secondTestHabitModel
+import com.example.domain.TestHabitModel.Companion.firstTestHabit
+import com.example.domain.TestHabitModel.Companion.secondTestHabit
 import com.example.domain.HabitRepository
-import com.example.domain.models.HabitModel
+import com.example.domain.models.Habit
 import com.example.domain.usecases.GetListAllHabitsUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -27,7 +27,7 @@ class GetListAllHabitsUseCaseTest {
         val mockHabitRepository: HabitRepository = mockk(relaxed = true)
         getListAllHabitsUseCase = GetListAllHabitsUseCase(mockHabitRepository)
 
-        val testHabitList = listOf(firstTestHabitModel, secondTestHabitModel)
+        val testHabitList = listOf(firstTestHabit, secondTestHabit)
         coEvery { mockHabitRepository.getListAllHabits() } returns testHabitList
 
         val result = getListAllHabitsUseCase.execute()
@@ -48,6 +48,6 @@ class GetListAllHabitsUseCaseTest {
 
         coVerify(exactly = 1) { mockHabitRepository.getListAllHabits() }
 
-        assertEquals(emptyList<HabitModel>(), result)
+        assertEquals(emptyList<Habit>(), result)
     }
 }

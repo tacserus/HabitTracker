@@ -1,12 +1,12 @@
 package com.example.data.mapper
 
+import com.example.data.api.HabitDto
 import com.example.data.database.HabitEntity
-import com.example.domain.models.AddHabitState
-import com.example.domain.models.HabitDto
-import com.example.domain.models.HabitModel
-import com.example.domain.models.HabitStatus
+import com.example.data.database.HabitStatus
+import com.example.domain.models.Habit
 import com.example.domain.models.Priority
 import com.example.domain.models.Type
+import com.example.domain.models.states.AddHabitState
 import java.util.UUID
 
 class HabitMapper {
@@ -15,11 +15,10 @@ class HabitMapper {
         val INSTANCE: HabitMapper = HabitMapper()
     }
 
-    fun entityToModel(habitEntity: HabitEntity): HabitModel {
+    fun entityToModel(habitEntity: HabitEntity): Habit {
 
-        return HabitModel(
+        return Habit(
             id = habitEntity.id,
-            apiId = habitEntity.apiId,
             title = habitEntity.title,
             description = habitEntity.description,
             priority = habitEntity.priority,
@@ -28,27 +27,29 @@ class HabitMapper {
             frequency = habitEntity.frequency,
             color = habitEntity.color,
             date = habitEntity.date,
-            habitStatus = habitEntity.habitStatus,
-            doneMarks = habitEntity.doneMarks,
-            isDoneMarksSynced = habitEntity.isDoneMarksSynced
+            doneMarks = habitEntity.doneMarks
         )
     }
 
-    fun modelToEntity(habitModel: HabitModel): HabitEntity {
+    fun modelToEntity(
+        habit: Habit,
+        habitStatus: HabitStatus,
+        apiId: String? = null
+    ): HabitEntity {
         return HabitEntity(
-            id = habitModel.id,
-            apiId = habitModel.apiId,
-            title = habitModel.title,
-            description = habitModel.description,
-            priority = habitModel.priority,
-            type = habitModel.type,
-            count = habitModel.count,
-            frequency = habitModel.frequency,
-            color = habitModel.color,
-            date = habitModel.date,
-            habitStatus = habitModel.habitStatus,
-            doneMarks = habitModel.doneMarks,
-            isDoneMarksSynced = habitModel.isDoneMarksSynced
+            id = habit.id,
+            apiId = apiId,
+            title = habit.title,
+            description = habit.description,
+            priority = habit.priority,
+            type = habit.type,
+            count = habit.count,
+            frequency = habit.frequency,
+            color = habit.color,
+            date = habit.date,
+            habitStatus = habitStatus,
+            doneMarks = habit.doneMarks,
+            isDoneMarksSynced = false
         )
     }
 
@@ -86,10 +87,9 @@ class HabitMapper {
         )
     }
 
-    fun stateToModel(addHabitState: AddHabitState, priority: Priority, type: Type): HabitModel {
-        return HabitModel(
+    fun stateToModel(addHabitState: AddHabitState, priority: Priority, type: Type): Habit {
+        return Habit(
             id = addHabitState.id,
-            apiId = addHabitState.apiId,
             title = addHabitState.title,
             description = addHabitState.description,
             priority = priority,
@@ -98,25 +98,20 @@ class HabitMapper {
             frequency = addHabitState.frequency,
             color = 0,
             date = System.currentTimeMillis(),
-            habitStatus = addHabitState.habitStatus,
-            doneMarks = addHabitState.doneMarks.toList(),
-            isDoneMarksSynced = addHabitState.isDoneMarksSynced
+            doneMarks = addHabitState.doneMarks.toList()
         )
     }
 
-    fun modelToState(habitModel: HabitModel, defaultPriority: String, defaultType: String): AddHabitState {
+    fun modelToState(habit: Habit, defaultPriority: String, defaultType: String): AddHabitState {
         return AddHabitState(
-            id = habitModel.id,
-            apiId = habitModel.apiId,
-            title = habitModel.title,
-            description = habitModel.description,
+            id = habit.id,
+            title = habit.title,
+            description = habit.description,
             priority = defaultPriority,
             type = defaultType,
-            count = habitModel.count,
-            frequency = habitModel.frequency,
-            habitStatus = if (habitModel.apiId == null) HabitStatus.ADD else HabitStatus.UPDATE,
-            doneMarks = habitModel.doneMarks.toList(),
-            isDoneMarksSynced = habitModel.isDoneMarksSynced
+            count = habit.count,
+            frequency = habit.frequency,
+            doneMarks = habit.doneMarks.toList()
         )
     }
 }

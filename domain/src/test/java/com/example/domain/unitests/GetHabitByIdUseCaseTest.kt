@@ -1,6 +1,6 @@
 package com.example.domain.unitests
 
-import com.example.domain.TestHabitModel.Companion.firstTestHabitModel
+import com.example.domain.TestHabitModel.Companion.firstTestHabit
 import com.example.domain.HabitRepository
 import com.example.domain.usecases.GetHabitByIdUseCase
 import io.mockk.coEvery
@@ -20,13 +20,13 @@ class GetHabitByIdUseCaseTest {
         val mockHabitRepository: HabitRepository = mockk(relaxed = true)
         getHabitByIdUseCase = GetHabitByIdUseCase(mockHabitRepository)
 
-        coEvery { mockHabitRepository.getHabitById(existingHabitId) } returns firstTestHabitModel
+        coEvery { mockHabitRepository.getHabitById(existingHabitId) } returns firstTestHabit
 
         val result = getHabitByIdUseCase.execute(existingHabitId)
 
         coVerify(exactly = 1) { mockHabitRepository.getHabitById(existingHabitId) }
 
-        assertEquals(firstTestHabitModel, result)
+        assertEquals(firstTestHabit, result)
     }
 
     @Test
