@@ -1,6 +1,8 @@
 package com.example.domain.models
 
-enum class Type(val description: String) {
+import java.io.Serializable
+
+enum class Type(val description: String) : Serializable {
     GoodHabit("Хорошая привычка"),
     BadHabit("Плохая привычка");
 }

@@ -2,7 +2,6 @@ package com.example.data.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.domain.models.HabitStatus
 import com.example.domain.models.Priority
 import com.example.domain.models.Type
 import java.io.Serializable

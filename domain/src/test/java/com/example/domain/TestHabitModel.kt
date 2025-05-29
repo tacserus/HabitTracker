@@ -1,7 +1,6 @@
 package com.example.domain
 
-import com.example.domain.models.HabitModel
-import com.example.domain.models.HabitStatus
+import com.example.domain.models.Habit
 import com.example.domain.models.Priority
 import com.example.domain.models.Type
 import java.time.LocalDateTime
@@ -12,7 +11,7 @@ class TestHabitModel {
         private val today = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
         private val tomorrow = LocalDateTime.now().plusDays(1).toEpochSecond(ZoneOffset.UTC)
 
-        val firstTestHabitModel = HabitModel(
+        val firstTestHabit = Habit(
             id = "test_id_1",
             title = "Test Habit 1",
             description = "Description 1",
@@ -22,11 +21,9 @@ class TestHabitModel {
             frequency = "1",
             color = 0,
             date = today,
-            doneMarks = mutableListOf(),
-            habitStatus = HabitStatus.SYNCED,
-            isDoneMarksSynced = false
+            doneMarks = mutableListOf()
         )
-        val secondTestHabitModel = HabitModel(
+        val secondTestHabit = Habit(
             id = "test_id_2",
             title = "Test Habit 2",
             description = "Description 2",
@@ -36,9 +33,7 @@ class TestHabitModel {
             frequency = "2",
             color = 0,
             date = tomorrow,
-            doneMarks = mutableListOf(),
-            habitStatus = HabitStatus.SYNCED,
-            isDoneMarksSynced = false
+            doneMarks = mutableListOf()
         )
     }
 }

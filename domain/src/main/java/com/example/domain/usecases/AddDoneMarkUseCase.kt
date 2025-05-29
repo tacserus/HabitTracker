@@ -1,10 +1,10 @@
 package com.example.domain.usecases
 
 import com.example.domain.HabitRepository
-import com.example.domain.models.HabitModel
+import com.example.domain.models.Habit
 
 class AddDoneMarkUseCase(private val repository: HabitRepository) {
-    suspend fun execute(habitModel: HabitModel, date: Long) {
-        repository.updateDoneMark(habitModel, date)
+    suspend fun execute(habit: Habit, date: Long) {
+        repository.updateDoneMark(habit, date)
     }
 }
