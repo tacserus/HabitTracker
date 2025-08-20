@@ -4,11 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.mapper.HabitMapper
 import com.example.domain.models.AddHabitEvent
-import com.example.domain.models.AddHabitState
-import com.example.domain.models.HabitModel
-import com.example.domain.models.HabitStatus
+import com.example.domain.models.Habit
 import com.example.domain.models.Priority
 import com.example.domain.models.Type
+import com.example.domain.models.states.AddHabitState
 import com.example.domain.usecases.AddHabitUseCase
 import com.example.domain.usecases.GetHabitByIdUseCase
 import com.example.domain.usecases.UpdateHabitUseCase
@@ -20,9 +19,9 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class AddHabitViewModel(
-    val addHabitUseCase: AddHabitUseCase,
-    val updateHabitUseCase: UpdateHabitUseCase,
-    val getHabitByIdUseCase: GetHabitByIdUseCase
+    private val addHabitUseCase: AddHabitUseCase,
+    private val updateHabitUseCase: UpdateHabitUseCase,
+    private val getHabitByIdUseCase: GetHabitByIdUseCase
 ) : ViewModel() {
 
     private val _stateFlow = MutableStateFlow<AddHabitState?>(null)
@@ -32,7 +31,20 @@ class AddHabitViewModel(
     val events = _events.asSharedFlow()
     var id: String = ""
 
-    fun initState(id: String, defaultPriority: String, defaultType: String) {
+    fun initState(id: String?, defaultPriority: String, defaultType: String) {
+        if (id == null) {
+            _stateFlow.value = AddHabitState(
+                id = UUID.randomUUID().toString(),
+                title = "",
+                description = "",
+                priority = defaultPriority,
+                type = defaultType,
+                count = "",
+                frequency = "",
+                doneMarks = listOf()
+            )
+            return
+        }
         this.id = id
 
         viewModelScope.launch {
@@ -43,21 +55,29 @@ class AddHabitViewModel(
             } else {
                 AddHabitState(
                     id = UUID.randomUUID().toString(),
-                    apiId = null,
                     title = "",
                     description = "",
                     priority = defaultPriority,
                     type = defaultType,
                     count = "",
                     frequency = "",
-                    habitStatus = HabitStatus.ADD,
-                    doneMarks = listOf(),
-                    isDoneMarksSynced = false
+                    doneMarks = listOf()
                 )
             }
 
             _stateFlow.value = selectedHabitState
         }
+    }
+
+    fun checkState(): Boolean {
+        val currentState = _stateFlow.value
+
+        return currentState?.let {
+            it.title.isNotBlank() &&
+            it.description.isNotBlank() &&
+            it.count.isNotBlank() &&
+            it.frequency.isNotBlank()
+        } ?: false
     }
 
     fun onSaveClicked(priority: Priority, type: Type) {
@@ -80,7 +100,7 @@ class AddHabitViewModel(
         }
     }
 
-    private fun getHabitFromState(priority: Priority, type: Type): HabitModel {
+    private fun getHabitFromState(priority: Priority, type: Type): Habit {
         val state = _stateFlow.value ?: throw IllegalStateException("State should not be null")
         return HabitMapper.INSTANCE.stateToModel(state, priority, type)
     }

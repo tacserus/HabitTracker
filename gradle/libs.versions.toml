@@ -1,79 +1,65 @@
 [versions]
 agp = "8.8.2"
-compiler = "7.4.2"
 dagger = "2.51"
 daggerCompiler = "2.51"
-databindingCompiler = "8.9.1"
-databindingRuntime = "8.9.1"
 junitJupiter = "5.10.0"
 junitJupiterEngine = "5.10.0"
 kaspresso = "1.5.2"
-kotlin = "1.9.21"
 kotlinxCoroutinesCore = "1.7.3"
 kotlinxCoroutinesTestVersion = "1.6"
+kotlin = "2.1.21"
 coreKtx = "1.15.0"
-junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-kotlinCompilerEmbeddable = "1.9.21"
 lifecycleLivedataKtx = "2.8.7"
 lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.10.0"
-composeBom = "2024.04.01"
 appcompat = "1.7.0"
 lifecycleViewmodelKtx = "2.8.7"
 navigationFragmentKtx = "2.8.9"
 recyclerview = "1.4.0"
 constraintlayout = "2.2.1"
+material3 = "1.3.2"
 mockk = "1.14.2"
 cardview = "1.0.0"
 material = "1.12.0"
-navigationRuntimeKtx = "2.8.9"
-roomCommon = "2.6.1"
-roomKtx = "2.6.1"
-roomRuntime = "2.6.1"
+roomCommon = "2.7.1"
+roomKtx = "2.7.1"
+roomRuntime = "2.7.1"
 runner = "1.6.1"
 loggingInterceptor = "4.10.0"
-mapstruct = "1.5.3.Final"
-mapstructProcessor = "1.5.3.Final"
-mapstructProcessorVersion = "1.6.0"
 okhttp = "4.12.0"
 orchestrator = "1.5.1"
 retrofit = "2.9.0"
 converterGson = "2.9.0"
+composeBom = "2025.05.00"
+runtime = "1.8.1"
+activityCompose = "1.10.1"
+lifecycleViewModelCompose = "2.8.7"
+truth = "1.1.5"
 swiperefreshlayout = "1.2.0-beta01"
 jetbrainsKotlinJvm = "1.9.21"
+navigation-compose = "2.8.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "orchestrator" }
-androidx-databinding-compiler = { module = "androidx.databinding:databinding-compiler", version.ref = "databindingCompiler" }
-androidx-databinding-runtime = { module = "androidx.databinding:databinding-runtime", version.ref = "databindingRuntime" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragmentKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomKtx" }
+androidx-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "runtime" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
-compiler = { module = "com.android.databinding:compiler" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
 jetbrains-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTestVersion" }
-databinding-compiler = { module = "com.android.databinding:compiler", version.ref = "compiler" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterEngine" }
@@ -81,27 +67,29 @@ kaspresso = { module = "com.kaspersky.android-components:kaspresso", version.ref
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
-kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlinCompilerEmbeddable" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
-#noinspection SimilarGradleDependency
-mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstructProcessor" }
-mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
-#noinspection SimilarGradleDependency
-mapstruct-processor-v160 = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstructProcessorVersion" }
+material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose"}
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+androidx-compose-bom = {group = "androidx.compose", name = "compose-bom", version.ref = "composeBom"}
+androidx-material3 = {group = "androidx.compose.material3", name = "material3"}
+androidx-ui-tooling-preview = {group = "androidx.compose.ui", name = "ui-tooling-preview"}
+androidx-ui-tooling = {group = "androidx.compose.ui", name = "ui-tooling"}
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-lifecycle-viewmodel-compose = {group ="androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewModelCompose"}
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

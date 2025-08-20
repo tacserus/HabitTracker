@@ -1,6 +1,6 @@
 package com.example.domain.unitests
 
-import com.example.domain.TestHabitModel.Companion.firstTestHabitModel
+import com.example.domain.TestHabitModel.Companion.firstTestHabit
 import com.example.domain.HabitRepository
 import com.example.domain.usecases.AddDoneMarkUseCase
 import io.mockk.coVerify
@@ -21,8 +21,8 @@ class AddDoneMarkUseCaseTest {
         val mockHabitRepository: HabitRepository = mockk(relaxed = true)
         addDoneMarkUseCase = AddDoneMarkUseCase(mockHabitRepository)
 
-        addDoneMarkUseCase.execute(firstTestHabitModel, testDate)
+        addDoneMarkUseCase.execute(firstTestHabit, testDate)
 
-        coVerify(exactly = 1) { mockHabitRepository.updateDoneMark(firstTestHabitModel, testDate) }
+        coVerify(exactly = 1) { mockHabitRepository.updateDoneMark(firstTestHabit, testDate) }
     }
 }

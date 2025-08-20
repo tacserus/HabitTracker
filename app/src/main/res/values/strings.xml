@@ -4,12 +4,18 @@
     <string name="habit_name">Название</string>
     <string name="habit_description">Описание</string>
     <string name="habit_priority">Приоритет</string>
+    <string name="habit_priority_field">Приоритет:</string>
     <string name="habit_type">Тип привычки</string>
     <string name="habit_good_type">Хорошая привычка</string>
     <string name="habit_bad_type">Плохая привычка</string>
     <string name="habit_count">Количество</string>
+    <string name="habit_data_field">Создана:</string>
+    <string name="habit_count_field">Количество:</string>
     <string name="habit_frequency">Периодичность</string>
+    <string name="habit_frequency_field">Периодичность:</string>
     <string name="habit_complete_count">Раз выполнено</string>
+    <string name="habit_complete_count_field">Раз выполнено:</string>
+    <string name="menu">Меню</string>
 
     <string name="habit_edit_name">Введите название</string>
     <string name="habit_edit_description">Введите описание</string>
@@ -17,11 +23,19 @@
     <string name="habit_edit_frequency">Введите периодичность</string>
 
     <string name="habit_save">Сохранить</string>
-    <string name="habit_add">Добавить</string>
+    <string name="add">Добавить</string>
+    <string name="add_habit">Добавить привычку</string>
+    <string name="open_menu">Открыть меню</string>
+    <string name="edit_habit">Редактировать привычку</string>
     <string name="habit_cancel">Отменить</string>
     <string name="habit_apply">Применить</string>
     <string name="habit_reset">Сбросить</string>
+    <string name="delete_habit">Удалить привычку</string>
+    <string name="back">Назад</string>
 
+    <string name="make_done_mark">Отметить как выполненное</string>
+
+    <string name="my_habits">Мои привычки</string>
     <string name="habit_detail">Детали привычки</string>
     <string name="good_habits">Хорошие привычки</string>
     <string name="bad_habits">Плохие привычки</string>
@@ -51,4 +65,11 @@
     <string name="good_high_message">You are breathtaking!</string>
     <string name="bad_low_message">Можно выполнить еще %1$d раз</string>
     <string name="bad_high_message">Хватит это делать!</string>
+
+    <string name="format">dd.MM.yyyy HH:mm</string>
+    <string name="habit_id">habitId</string>
+
+    <string name="habits_pager_screen">habits_pager_screen</string>
+    <string name="add_habit_screen">add_edit_habit_screen</string>
+    <string name="edit_habit_screen">add_edit_habit_screen?habitId=</string>
 </resources>
